@@ -21,6 +21,16 @@ func main() {
 		return d.SendString(" Hello, POST👋!")
 	})
 
+	app.Put("/", func(d fiber.Ctx) error {
+
+		return d.SendString("ayy 33 got on the top 0_o👋!")
+	})
+
+	app.Delete("/", func(d fiber.Ctx) error {
+
+		return d.SendString("mb bby👋!")
+	})
+
 	// Start the server on port 3000
 	log.Fatal(app.Listen(":3000"))
 }
