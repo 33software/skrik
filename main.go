@@ -7,8 +7,8 @@ import (
 )
 
 type Request struct {
-	username string `json:"name"`
-	mail     string `json:"email"`
+	Username string `json:"name"`
+	Mail     string `json:"email"`
 }
 
 func main() {
@@ -26,8 +26,9 @@ func main() {
 			return d.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
 		return d.JSON(fiber.Map{
-			"message": "урааА",
-			"data":    request,
+			"message":  "урааА",
+			"username": request.Username,
+			"Email":    request.Mail,
 		})
 	})
 
