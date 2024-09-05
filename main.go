@@ -6,19 +6,29 @@ import (
 	"github.com/gofiber/fiber/v3"
 )
 
+type Request struct {
+	username string `json:"name"`
+	mail     string `json:"email"`
+}
+
 func main() {
-	// Initialize a new Fiber app
+
 	app := fiber.New()
 
-	// Define a route for the GET method on the root path '/'
 	app.Get("/", func(d fiber.Ctx) error {
-		// Send a string response to the client
 		return d.SendString("Hello, World 👋!")
 	})
 
-	app.Post("/", func(d fiber.Ctx) error {
+	app.Post("/register", func(d fiber.Ctx) error {
+		var request Request
 
-		return d.SendString(" Hello, POST👋!")
+		if err := d.Bind().Body(&request); err != nil {
+			return d.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
+		return d.JSON(fiber.Map{
+			"message": "урааА",
+			"data":    request,
+		})
 	})
 
 	app.Put("/", func(d fiber.Ctx) error {
@@ -31,6 +41,6 @@ func main() {
 		return d.SendString("mb bby👋!")
 	})
 
-	// Start the server on port 3000
 	log.Fatal(app.Listen(":3000"))
+
 }
