@@ -10,14 +10,18 @@ type Request struct {
 	Username string `json:"name"`
 	Mail     string `json:"email"`
 }
-
-/*type Params struct {
-	Userid int
-}*/
+type User struct {
+	Userid int `json:"id"`
+}
 
 func main() {
 
 	app := fiber.New()
+
+	app.Get("/user", func(c fiber.Ctx) error {
+		userid := c.Query("userid")
+		return c.SendString("Hello," + userid)
+	})
 
 	app.Get("/user", func(c fiber.Ctx) error {
 		return c.SendString("Hello, World 👋!")
@@ -36,13 +40,23 @@ func main() {
 	})
 
 	app.Put("/user", func(c fiber.Ctx) error {
-		response := c.Queries()
-		return c.JSON(response)
+		//var userData User
+		//response := c.Queries()
+
+		userid := c.Query("userid")
+		if userid == "" {
+			return c.Status(fiber.StatusBadRequest).SendString(fiber.ErrBadRequest.Error())
+		}
+
+		return c.SendString(userid)
 	})
 
 	app.Delete("/user", func(c fiber.Ctx) error {
-
-		return c.SendString("mb bby👋!")
+		userid := c.Query("userid")
+		if userid == "" {
+			return c.Status(fiber.StatusBadRequest).SendString(fiber.ErrBadRequest.Error())
+		}
+		return c.SendString("1123")
 	})
 
 	log.Fatal(app.Listen(":3000"))
