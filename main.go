@@ -11,35 +11,38 @@ type Request struct {
 	Mail     string `json:"email"`
 }
 
+/*type Params struct {
+	Userid int
+}*/
+
 func main() {
 
 	app := fiber.New()
 
-	app.Get("/", func(d fiber.Ctx) error {
-		return d.SendString("Hello, World 👋!")
+	app.Get("/user", func(c fiber.Ctx) error {
+		return c.SendString("Hello, World 👋!")
 	})
 
-	app.Post("/register", func(d fiber.Ctx) error {
+	app.Post("/user", func(c fiber.Ctx) error {
 		var request Request
 
-		if err := d.Bind().Body(&request); err != nil {
-			return d.Status(fiber.StatusBadRequest).SendString(err.Error())
+		if err := c.Bind().Body(&request); err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
-		return d.JSON(fiber.Map{
-			"message":  "урааА",
+		return c.JSON(fiber.Map{
 			"username": request.Username,
 			"Email":    request.Mail,
 		})
 	})
 
-	app.Put("/", func(d fiber.Ctx) error {
-
-		return d.SendString("ayy 33 got on the top 0_o👋!")
+	app.Put("/user", func(c fiber.Ctx) error {
+		response := c.Queries()
+		return c.JSON(response)
 	})
 
-	app.Delete("/", func(d fiber.Ctx) error {
+	app.Delete("/user", func(c fiber.Ctx) error {
 
-		return d.SendString("mb bby👋!")
+		return c.SendString("mb bby👋!")
 	})
 
 	log.Fatal(app.Listen(":3000"))
