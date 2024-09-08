@@ -9,7 +9,6 @@ services:
       - ENV_VAR=production
     volumes:
       - .:/app
-    command: go run main.go
     depends_on:
       - postgres
 
