@@ -7,6 +7,9 @@ Audio streaming service for educational purposes
 docker compose up
 ```
 `First start can take a while!`
+## Endpoints
+You can reach all endpoints and tested it via swagger
+`localhost:8080/swagger/`
 
 # Helpful commands
 - Update swagger docs
