@@ -1,9 +1,10 @@
 package routes
 
 import (
-	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/swagger"
+	"github.com/gofiber/fiber/v2"
 
-    "audio-stream-golang/handlers"
+	"audio-stream-golang/handlers"
 )
 
 func SetupRoutes(app *fiber.App) {
@@ -14,4 +15,8 @@ func SetupRoutes(app *fiber.App) {
     api.Post("/users", handlers.CreateUser)
 	api.Put("/users", handlers.UpdateUser)
 	api.Delete("/users", handlers.DeleteUser)
+}
+
+func SetupSwagger(app *fiber.App){
+	app.Get("/swagger/*", swagger.HandlerDefault)
 }

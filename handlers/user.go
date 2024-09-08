@@ -1,7 +1,7 @@
 package handlers
 
 import (
-    "github.com/gofiber/fiber/v3"
+    "github.com/gofiber/fiber/v2"
 )
 
 type UserSchema struct {
@@ -10,17 +10,17 @@ type UserSchema struct {
 	Email    string `json:"email"`
 }
 
-func GetUser(c fiber.Ctx) error {
+func GetUser(c *fiber.Ctx) error {
 	if userid := c.Query("userid"); userid != "" {
 		return c.Status(fiber.StatusOK).SendString("Hello " + userid)
 	}
 	return c.Status(fiber.StatusOK).SendString("Hello World")
 }
 
-func CreateUser(c fiber.Ctx) error {
+func CreateUser(c *fiber.Ctx) error {
 	var request UserSchema
 
-	if err := c.Bind().Body(&request); err != nil {
+	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
 	}
 	response := fiber.Map{
@@ -30,14 +30,15 @@ func CreateUser(c fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(response)
 }
 
-func UpdateUser(c fiber.Ctx) error {
+func UpdateUser(c *fiber.Ctx) error {
 	var request UserSchema
 	userid := c.Query("userid")
 	if userid == "" {
 		return c.Status(fiber.StatusNotFound).SendString(fiber.ErrBadRequest.Error())
 	}
-
-	if err := c.Bind().Body(&request); err != nil {
+	
+	// if err := c.Bind().Body(&request); err != nil {
+	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
 	}
 
@@ -49,7 +50,7 @@ func UpdateUser(c fiber.Ctx) error {
 		})
 }
 
-func DeleteUser(c fiber.Ctx) error {
+func DeleteUser(c *fiber.Ctx) error {
 	userid := c.Query("userid")
 	if userid == "" {
 		return c.Status(fiber.StatusBadRequest).SendString(fiber.ErrBadRequest.Error())
