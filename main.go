@@ -1,21 +1,68 @@
 package main
 
 import (
-    "log"
+	"log"
 
-    "github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3"
 )
 
+type UserSchema struct {
+	UserId   int    `json:"userid"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
 func main() {
-    // Initialize a new Fiber app
-    app := fiber.New()
 
-    // Define a route for the GET method on the root path '/'
-    app.Get("/", func(c fiber.Ctx) error {
-        // Send a string response to the client
-        return c.SendString("Hello, World 👋!")
-    })
+	app := fiber.New()
 
-    // Start the server on port 3000
-    log.Fatal(app.Listen(":3000"))
+	app.Get("/user", func(c fiber.Ctx) error {
+		if userid := c.Query("userid"); userid != "" {
+			return c.Status(fiber.StatusOK).SendString("Hello " + userid)
+		}
+		return c.Status(fiber.StatusOK).SendString("Hello World")
+	})
+
+	app.Post("/user", func(c fiber.Ctx) error {
+		var request UserSchema
+
+		if err := c.Bind().Body(&request); err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
+		}
+		response := fiber.Map{
+			"username": request.Username,
+			"email":    request.Email,
+		}
+		return c.Status(fiber.StatusOK).JSON(response)
+	})
+
+	app.Put("/user", func(c fiber.Ctx) error {
+		var request UserSchema
+		userid := c.Query("userid")
+		if userid == "" {
+			return c.Status(fiber.StatusNotFound).SendString(fiber.ErrBadRequest.Error())
+		}
+
+		if err := c.Bind().Body(&request); err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
+		}
+
+		return c.JSON(
+			fiber.Map{
+				"userid":   request.UserId,
+				"username": request.Username,
+				"email":    request.Email,
+			})
+	})
+
+	app.Delete("/user", func(c fiber.Ctx) error {
+		userid := c.Query("userid")
+		if userid == "" {
+			return c.Status(fiber.StatusBadRequest).SendString(fiber.ErrBadRequest.Error())
+		}
+		return c.Status(fiber.StatusOK).SendString("Delete " + userid)
+	})
+
+	log.Fatal(app.Listen(":3000"))
+
 }
