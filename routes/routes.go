@@ -1,6 +1,7 @@
 package routes
 
 import (
+	_ "audio-stream-golang/docs"
 	"audio-stream-golang/handlers"
 
 	"github.com/gofiber/fiber/v2"
