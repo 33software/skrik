@@ -1,9 +1,10 @@
 # Используем официальный образ Go в качестве базового
-FROM golang:1.20-alpine
+FROM golang:1.23-alpine
 
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
 
+RUN go install github.com/air-verse/air@latest
 # Копируем файлы go.mod и go.sum и устанавливаем зависимости
 COPY go.mod go.sum ./
 RUN go mod download
@@ -12,4 +13,4 @@ RUN go mod download
 COPY . .
 
 # Запускаем приложение с использованием go run
-CMD ["go", "run", "main.go"]
+CMD ["air", "-c", ".air.toml"]
