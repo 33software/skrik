@@ -10,6 +10,8 @@ RUN go install github.com/air-verse/air@latest
 COPY go.mod go.sum ./
 RUN go mod download
 
+COPY entrypoint.sh entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh"]
 # Копируем все файлы проекта в контейнер
 COPY . .
 
