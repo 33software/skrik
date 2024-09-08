@@ -12,6 +12,6 @@ func SetupRoutes(app *fiber.App) {
     // Пример маршрута для пользователей
     api.Get("/users", handlers.GetUser)
     api.Post("/users", handlers.CreateUser)
-	api.Post("/users", handlers.UpdateUser)
+	api.Put("/users", handlers.UpdateUser)
 	api.Delete("/users", handlers.DeleteUser)
 }
