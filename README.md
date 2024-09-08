@@ -8,7 +8,7 @@ docker compose up
 ```
 `First start can take a while!`
 ## Endpoints
-You can reach all endpoints and tested it via swagger
+You can reach all endpoints and test it via swagger
 `localhost:8080/swagger/`
 
 # Helpful commands
