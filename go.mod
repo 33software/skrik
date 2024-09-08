@@ -1,6 +1,6 @@
-module github.com/va1ker/audio-stream-golang
+module audio-stream-golang
 
-go 1.23
+go 1.23.0
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
