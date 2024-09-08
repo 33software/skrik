@@ -4,6 +4,7 @@ FROM golang:1.23-alpine
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
 
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN go install github.com/air-verse/air@latest
 # Копируем файлы go.mod и go.sum и устанавливаем зависимости
 COPY go.mod go.sum ./

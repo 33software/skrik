@@ -9,6 +9,7 @@ services:
       - ENV_VAR=production
     volumes:
       - .:/app
+      - ./tmp:/tmp
     depends_on:
       - postgres
 

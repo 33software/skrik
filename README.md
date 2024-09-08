@@ -9,6 +9,15 @@ docker compose up
 `First start can take a while!`
 
 # Helpful commands
+- Update swagger docs
+``` bash
+swag init -g .\routes\routes.go
+```
+or
+```bash
+swag init
+```
+
 - Start project (without hot reload)
 ```bash
 go run .\main.go
