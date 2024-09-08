@@ -26,7 +26,7 @@ go run .\main.go
 ```bash
 air
 ```
-- Start projec (with all services + hot reload)
+- Start project (with all services + hot reload)
 ```bash
 docker compose up
 ```
