@@ -6,12 +6,10 @@ import (
 	"github.com/gofiber/fiber/v3"
 )
 
-type Request struct {
-	Username string `json:"name"`
-	Mail     string `json:"email"`
-}
-type User struct {
-	Userid int `json:"id"`
+type UserSchema struct {
+	UserId   int    `json:"userid"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }
 
 func main() {
@@ -20,41 +18,40 @@ func main() {
 
 	app.Get("/user", func(c fiber.Ctx) error {
 		if userid := c.Query("userid"); userid != "" {
-			return c.SendString("Hello " + userid)
+			return c.Status(fiber.StatusOK).SendString("Hello " + userid)
 		}
-		return c.SendString("Hello, World 👋!")
+		return c.Status(fiber.StatusOK).SendString("Hello World")
 	})
 
 	app.Post("/user", func(c fiber.Ctx) error {
-		var request Request
+		var request UserSchema
 
 		if err := c.Bind().Body(&request); err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+			return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
 		}
-		return c.JSON(fiber.Map{
+		response := fiber.Map{
 			"username": request.Username,
-			"Email":    request.Mail,
-		})
+			"email":    request.Email,
+		}
+		return c.Status(fiber.StatusOK).JSON(response)
 	})
 
 	app.Put("/user", func(c fiber.Ctx) error {
-		var request Request
+		var request UserSchema
 		userid := c.Query("userid")
 		if userid == "" {
-			return c.Status(fiber.StatusBadRequest).SendString(fiber.ErrBadRequest.Error())
+			return c.Status(fiber.StatusNotFound).SendString(fiber.ErrBadRequest.Error())
 		}
-		
+
 		if err := c.Bind().Body(&request); err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+			return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
 		}
-		
 
 		return c.JSON(
 			fiber.Map{
-				"userid":userid,
-				"username":request.Username,
-				"email":request.Mail,
-
+				"userid":   request.UserId,
+				"username": request.Username,
+				"email":    request.Email,
 			})
 	})
 
@@ -63,7 +60,7 @@ func main() {
 		if userid == "" {
 			return c.Status(fiber.StatusBadRequest).SendString(fiber.ErrBadRequest.Error())
 		}
-		return c.SendString("Delete " + userid)
+		return c.Status(fiber.StatusOK).SendString("Delete " + userid)
 	})
 
 	log.Fatal(app.Listen(":3000"))
