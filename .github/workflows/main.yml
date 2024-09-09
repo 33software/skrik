@@ -28,8 +28,8 @@ jobs:
         run: go mod download
 
       # Шаг 4: Запуск тестов
-      # - name: Run tests
-      #   run: go test ./...
+      - name: Run tests
+        run: go test -v .\tests\
 
       # Шаг 5: Установка golangci-lint
       - name: Install golangci-lint
