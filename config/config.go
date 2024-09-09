@@ -17,7 +17,7 @@ type CfgData struct {
 }
 
 func GetConfig() CfgData {
-	godotenv.Load()
+	godotenv.Load("dev.env")
 	envConfig := CfgData{
 		Postgres_user:     os.Getenv("POSTGRES_USER"),
 		Postgres_db:       os.Getenv("POSTGRES_DB"),
