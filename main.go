@@ -2,7 +2,7 @@ package main
 
 import (
 	"audio-stream-golang/config"
-	"audio-stream-golang/db_connect"
+	"audio-stream-golang/database"
 	_ "audio-stream-golang/docs"
 	"audio-stream-golang/routes"
 	"log"
@@ -11,7 +11,7 @@ import (
 
 func main() {
 	EnvConfig := config.GetConfig()
-	db_connect.SetupDb()
+	database.SetupDb()
 	app := fiber.New()
 	routes.SetupUserRoutes(app)
 	routes.SetupSwagger(app)

@@ -1,9 +1,8 @@
-package db_connect
+package database
 
 import (
 	"audio-stream-golang/config"
 	"log"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -21,6 +20,6 @@ func SetupDb() {
 		return
 	}
 	var result int64
-	Database.Raw("SELECT 1123123123123123").Scan(&result)
+	Database.Raw("SELECT 1").Scan(&result)
 	log.Println(result)
 }
