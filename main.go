@@ -12,6 +12,7 @@ import (
 
 func main() {
 	EnvConfig := config.GetConfig()
+	db_connect.SetupDb()
 	app := fiber.New()
 	routes.SetupUserRoutes(app)
 	routes.SetupSwagger(app)
