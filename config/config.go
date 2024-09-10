@@ -2,7 +2,7 @@ package config
 
 import (
 	"os"
-
+	"log"
 	"github.com/joho/godotenv"
 )
 
@@ -17,7 +17,9 @@ type CfgData struct {
 }
 
 func GetConfig() CfgData {
-	godotenv.Load("dev.env")
+	if err := godotenv.Load("dev.env"); err != nil {
+        log.Fatalf("Error loading .env file: %v", err)
+    }
 	envConfig := CfgData{
 		Postgres_user:     os.Getenv("POSTGRES_USER"),
 		Postgres_db:       os.Getenv("POSTGRES_DB"),

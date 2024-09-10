@@ -33,3 +33,7 @@ air
 ```bash
 docker compose up
 ```
+
+## Tests
+
+Now we writing tests with endpoints! Every test file should be in `tests` folder and have a `_test.go` in the end

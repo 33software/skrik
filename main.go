@@ -6,7 +6,6 @@ import (
 	_ "audio-stream-golang/docs"
 	"audio-stream-golang/routes"
 	"log"
-
 	"github.com/gofiber/fiber/v2"
 )
 
