@@ -17,5 +17,4 @@ func main() {
 	routes.SetupUserRoutes(app)
 	routes.SetupSwagger(app)
 	log.Fatal(app.Listen(EnvConfig.App_ip + ":" + EnvConfig.App_port))
-	db_connect.SetupDb()
 }
