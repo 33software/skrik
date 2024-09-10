@@ -18,4 +18,5 @@ func SetupUserRoutes(app *fiber.App) {
 
 func SetupSwagger(app *fiber.App) {
 	app.Get("/swagger/*", swagger.HandlerDefault)
+	
 }
