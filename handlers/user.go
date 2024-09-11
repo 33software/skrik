@@ -26,8 +26,8 @@ func GetUser(c *fiber.Ctx) error {
 // @Tags users
 // @Accept  json
 // @Produce  json
-// @Param user body UserSchema true "User data"
-// @Success 200 {object} UserSchema
+// @Param user body models.UserSchema true "User data"
+// @Success 200 {object} models.UserSchema
 // @Router /api/users [post]
 func CreateUser(c *fiber.Ctx) error {
 	var request models.UserSchema
@@ -48,8 +48,8 @@ func CreateUser(c *fiber.Ctx) error {
 // @Accept  json
 // @Produce  json
 // @Param id path int true "User ID"
-// @Param user body UserSchema true "Updated user data"
-// @Success 200 {object} UserSchema
+// @Param user body models.UserSchema true "Updated user data"
+// @Success 200 {object} models.UserSchema
 // @Router /api/users [put]
 func UpdateUser(c *fiber.Ctx) error {
 	var request models.UserSchema
@@ -58,7 +58,6 @@ func UpdateUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).SendString(fiber.ErrBadRequest.Error())
 	}
 
-	// if err := c.Bind().Body(&request); err != nil {
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
 	}

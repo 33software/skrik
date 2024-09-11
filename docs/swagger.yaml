@@ -1,5 +1,5 @@
 definitions:
-  handlers.UserSchema:
+  models.UserSchema:
     properties:
       email:
         type: string
@@ -58,14 +58,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/handlers.UserSchema'
+          $ref: '#/definitions/models.UserSchema'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.UserSchema'
+            $ref: '#/definitions/models.UserSchema'
       summary: Create a new user
       tags:
       - users
@@ -84,14 +84,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/handlers.UserSchema'
+          $ref: '#/definitions/models.UserSchema'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.UserSchema'
+            $ref: '#/definitions/models.UserSchema'
       summary: Update a user
       tags:
       - users
