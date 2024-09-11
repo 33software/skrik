@@ -72,7 +72,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.UserSchema"
+                            "$ref": "#/definitions/models.UserSchema"
                         }
                     }
                 ],
@@ -80,7 +80,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.UserSchema"
+                            "$ref": "#/definitions/models.UserSchema"
                         }
                     }
                 }
@@ -104,7 +104,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.UserSchema"
+                            "$ref": "#/definitions/models.UserSchema"
                         }
                     }
                 ],
@@ -112,7 +112,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.UserSchema"
+                            "$ref": "#/definitions/models.UserSchema"
                         }
                     }
                 }
@@ -144,7 +144,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handlers.UserSchema": {
+        "models.UserSchema": {
             "type": "object",
             "properties": {
                 "email": {

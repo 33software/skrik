@@ -2,7 +2,9 @@ package database
 
 import (
 	"audio-stream-golang/config"
+	"audio-stream-golang/models"
 	"log"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -17,6 +19,11 @@ func SetupDb() {
 	Database, err := gorm.Open(postgres.Open(dsn))
 	if err != nil {
 		log.Println("couldn't connect to database", err)
+		return
+	}
+	err = Database.AutoMigrate(models.User{})
+	if err != nil {
+		log.Println("couldn't migrate the structure!", err)
 		return
 	}
 	var result int64

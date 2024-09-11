@@ -2,13 +2,8 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"audio-stream-golang/models"
 )
-
-type UserSchema struct {
-	UserId   int    `json:"userid"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-}
 
 // GetUser gets a user by ID
 // @Summary Get user
@@ -31,11 +26,11 @@ func GetUser(c *fiber.Ctx) error {
 // @Tags users
 // @Accept  json
 // @Produce  json
-// @Param user body UserSchema true "User data"
-// @Success 200 {object} UserSchema
+// @Param user body models.UserSchema true "User data"
+// @Success 200 {object} models.UserSchema
 // @Router /api/users [post]
 func CreateUser(c *fiber.Ctx) error {
-	var request UserSchema
+	var request models.UserSchema
 
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
@@ -53,17 +48,16 @@ func CreateUser(c *fiber.Ctx) error {
 // @Accept  json
 // @Produce  json
 // @Param id path int true "User ID"
-// @Param user body UserSchema true "Updated user data"
-// @Success 200 {object} UserSchema
+// @Param user body models.UserSchema true "Updated user data"
+// @Success 200 {object} models.UserSchema
 // @Router /api/users [put]
 func UpdateUser(c *fiber.Ctx) error {
-	var request UserSchema
+	var request models.UserSchema
 	userid := c.Query("userid")
 	if userid == "" {
 		return c.Status(fiber.StatusNotFound).SendString(fiber.ErrBadRequest.Error())
 	}
 
-	// if err := c.Bind().Body(&request); err != nil {
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
 	}
