@@ -1,9 +1,10 @@
 package database
 
 import (
-	"audio-stream-golang/models"
 	"audio-stream-golang/config"
+	"audio-stream-golang/models"
 	"log"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -20,7 +21,7 @@ func SetupDb() {
 		log.Println("couldn't connect to database", err)
 		return
 	}
-	Database.AutoMigrate(models.User{})
+	Database.AutoMigrate(&models.User{})
 	var result int64
 	Database.Raw("SELECT 1").Scan(&result)
 	log.Println(result)
