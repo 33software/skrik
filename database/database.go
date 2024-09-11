@@ -21,7 +21,11 @@ func SetupDb() {
 		log.Println("couldn't connect to database", err)
 		return
 	}
-	Database.AutoMigrate(&models.User{})
+	err = Database.AutoMigrate(models.User{})
+	if err != nil {
+		log.Println("couldn't migrate the structure!", err)
+		return
+	}
 	var result int64
 	Database.Raw("SELECT 1").Scan(&result)
 	log.Println(result)
