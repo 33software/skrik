@@ -9,6 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var DataBase *gorm.DB
+
 func SetupDb() {
 	EnvConfig := config.GetConfig()
 	dsn := "host=" + EnvConfig.Postgres_host +
@@ -16,17 +18,22 @@ func SetupDb() {
 		" password=" + EnvConfig.Postgres_password +
 		" dbname=" + EnvConfig.Postgres_db +
 		" port=" + EnvConfig.Postgres_port
-	Database, err := gorm.Open(postgres.Open(dsn))
+	DataBase, err := gorm.Open(postgres.Open(dsn))
 	if err != nil {
 		log.Println("couldn't connect to database", err)
 		return
 	}
-	err = Database.AutoMigrate(models.User{})
+	err = DataBase.AutoMigrate(models.User{})
 	if err != nil {
-		log.Println("couldn't migrate the structure!", err)
+		log.Println("couldn't migrate database user model", err)
 		return
 	}
+
+
+
+
+
 	var result int64
-	Database.Raw("SELECT 1").Scan(&result)
+	DataBase.Raw("SELECT 1").Scan(&result)
 	log.Println(result)
 }

@@ -1,8 +1,13 @@
 package handlers
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"audio-stream-golang/database"
 	"audio-stream-golang/models"
+	"errors"
+	"log"
+
+	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 // GetUser gets a user by ID
@@ -15,10 +20,20 @@ import (
 // @Success 200 {string} string "Hello World"
 // @Router /api/users [get]
 func GetUser(c *fiber.Ctx) error {
-	if userid := c.Query("userid"); userid != "" {
-		return c.Status(fiber.StatusOK).SendString("Hello " + userid)
+	var request models.User
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
 	}
-	return c.Status(fiber.StatusOK).SendString("Hello World")
+
+	var user models.User
+	if err := database.DataBase.First(&user, "email = ?", request.Email).Error; err != nil{
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).SendString("no such user")
+		}
+	return c.Status(fiber.StatusBadRequest).SendString("panic")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(user.Email)
 }
 
 // @Summary Create a new user
@@ -30,16 +45,19 @@ func GetUser(c *fiber.Ctx) error {
 // @Success 200 {object} models.UserSchema
 // @Router /api/users [post]
 func CreateUser(c *fiber.Ctx) error {
-	var request models.UserSchema
+	var request models.User
 
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
 	}
-	response := fiber.Map{
-		"username": request.Username,
-		"email":    request.Email,
+
+	newUser := models.User{ID: request.ID, Email: request.Email, Username: request.Username, Password: request.Password}
+	err := database.DataBase.Create(&newUser)
+	if err != nil {
+		log.Println("couldn't create database record", err)
+		return (fiber.ErrBadRequest)
 	}
-	return c.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusOK).SendString("Success!")
 }
 
 // @Summary Update a user
@@ -52,7 +70,7 @@ func CreateUser(c *fiber.Ctx) error {
 // @Success 200 {object} models.UserSchema
 // @Router /api/users [put]
 func UpdateUser(c *fiber.Ctx) error {
-	var request models.UserSchema
+	var request models.User
 	userid := c.Query("userid")
 	if userid == "" {
 		return c.Status(fiber.StatusNotFound).SendString(fiber.ErrBadRequest.Error())
@@ -64,7 +82,7 @@ func UpdateUser(c *fiber.Ctx) error {
 
 	return c.JSON(
 		fiber.Map{
-			"userid":   request.UserId,
+			"userid":   request.ID,
 			"username": request.Username,
 			"email":    request.Email,
 		})
