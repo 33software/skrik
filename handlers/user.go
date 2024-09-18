@@ -39,9 +39,9 @@ func GetUser(c *fiber.Ctx) error {
 // @Description Create a new user with the input data
 // @Tags users
 // @Accept  json
-// @Produce  json
+// @Produce  plain
 // @Param user body models.User true "User data"
-// @Success 200 {object} models.User
+// @Success 200 {string} string "JWT Token"
 // @Router /api/users [post]
 func CreateUser(c *fiber.Ctx) error {
 	var request models.User
