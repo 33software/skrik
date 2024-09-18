@@ -12,8 +12,8 @@ import (
 }*/
 
 type User struct {
-	gorm.Model
-	Username string
-	Email    string `gorm:"unique"`
-	Password string `json:"-"`
+	gorm.Model `swaggerignore:"true"`
+	Username   string
+	Email      string `gorm:"unique"`
+	Password   string `json:"-"`
 }

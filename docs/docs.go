@@ -145,7 +145,15 @@ const docTemplate = `{
     },
     "definitions": {
         "models.User": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
         }
     }
 }`

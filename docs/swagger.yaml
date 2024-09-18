@@ -1,5 +1,10 @@
 definitions:
   models.User:
+    properties:
+      email:
+        type: string
+      username:
+        type: string
     type: object
 info:
   contact: {}
