@@ -4,11 +4,25 @@ import (
 	"audio-stream-golang/database"
 	"audio-stream-golang/models"
 	"errors"
+	"time"
 	"log"
-
+	"audio-stream-golang/config"
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"github.com/golang-jwt/jwt/v4"
 )
+
+func GenerateJWT (userid uint) (string, error) {
+	EnvConfig := config.GetConfig()
+	claims := jwt.MapClaims {
+		"userid": userid,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+	}
+	newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return newToken.SignedString(EnvConfig.Jwt_keyword)
+}
 
 // GetUser gets a user by ID
 // @Summary Get user
@@ -21,19 +35,16 @@ import (
 // @Router /api/users [get]
 func GetUser(c *fiber.Ctx) error {
 	var request models.User
-	if err := c.BodyParser(&request); err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
-	}
-
-	var user models.User
-	if err := database.DataBase.First(&user, "email = ?", request.Email).Error; err != nil{
+	user := c.Query("ID")
+	
+	if err := database.DataBase.First(&request, "ID= ?", user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).SendString("no such user")
 		}
-	return c.Status(fiber.StatusBadRequest).SendString("panic")
+		return c.Status(fiber.StatusBadRequest).SendString("panic")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(user.Email)
+	return c.Status(fiber.StatusOK).JSON(request)
 }
 
 // @Summary Create a new user
@@ -46,20 +57,29 @@ func GetUser(c *fiber.Ctx) error {
 // @Router /api/users [post]
 func CreateUser(c *fiber.Ctx) error {
 	var request models.User
-
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
 	}
 
-	newUser := models.User{ID: request.ID, Email: request.Email, Username: request.Username, Password: request.Password}
-	err := database.DataBase.Create(&newUser)
-	if err != nil {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 10)
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
+    }
+    request.Password = string(hashedPassword)
+
+	newUser := models.User{Email: request.Email, Username: request.Username, Password: request.Password}
+	if err := database.DataBase.Create(&newUser).Error; err != nil{
 		log.Println("couldn't create database record", err)
 		return (fiber.ErrBadRequest)
 	}
-	return c.Status(fiber.StatusOK).SendString("Success!")
-}
 
+	token, err := GenerateJWT(newUser.ID)
+	if err != nil {
+		log.Println("couldn't create JWT token", err)
+	}
+
+	return c.Status(fiber.StatusOK).SendString(token)
+}
 // @Summary Update a user
 // @Description Update an existing user
 // @Tags users

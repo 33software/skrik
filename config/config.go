@@ -14,6 +14,8 @@ type CfgData struct {
 	Postgres_port     string
 	App_ip            string
 	App_port          string
+	Jwt_keyword		  string
+
 }
 
 func GetConfig() CfgData {
@@ -28,6 +30,7 @@ func GetConfig() CfgData {
 		Postgres_port:     os.Getenv("POSTGRES_PORT"),
 		App_ip:            os.Getenv("APP_IP"),
 		App_port:          os.Getenv("APP_PORT"),
+		Jwt_keyword:       os.Getenv("JWT_KEYWORD"),
 	}
 	return envConfig
 }
