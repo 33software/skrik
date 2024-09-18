@@ -61,7 +61,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UserSchema"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 ],
@@ -69,7 +69,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserSchema"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 }
@@ -93,7 +93,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UserSchema"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 ],
@@ -101,7 +101,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserSchema"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 }
@@ -133,19 +133,8 @@
         }
     },
     "definitions": {
-        "models.UserSchema": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "userid": {
-                    "type": "integer"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
+        "models.User": {
+            "type": "object"
         }
     }
 }

@@ -1,28 +1,16 @@
 package handlers
 
 import (
+	jwtGen "audio-stream-golang/JWT"
 	"audio-stream-golang/database"
 	"audio-stream-golang/models"
 	"errors"
-	"time"
 	"log"
-	"audio-stream-golang/config"
+
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"github.com/golang-jwt/jwt/v4"
 )
-
-func GenerateJWT (userid uint) (string, error) {
-	EnvConfig := config.GetConfig()
-	claims := jwt.MapClaims {
-		"userid": userid,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-	}
-	newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return newToken.SignedString(EnvConfig.Jwt_keyword)
-}
 
 // GetUser gets a user by ID
 // @Summary Get user
@@ -36,7 +24,7 @@ func GenerateJWT (userid uint) (string, error) {
 func GetUser(c *fiber.Ctx) error {
 	var request models.User
 	user := c.Query("ID")
-	
+
 	if err := database.DataBase.First(&request, "ID= ?", user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).SendString("no such user")
@@ -52,8 +40,8 @@ func GetUser(c *fiber.Ctx) error {
 // @Tags users
 // @Accept  json
 // @Produce  json
-// @Param user body models.UserSchema true "User data"
-// @Success 200 {object} models.UserSchema
+// @Param user body models.User true "User data"
+// @Success 200 {object} models.User
 // @Router /api/users [post]
 func CreateUser(c *fiber.Ctx) error {
 	var request models.User
@@ -62,32 +50,33 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 10)
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
-    }
-    request.Password = string(hashedPassword)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
+	}
+	request.Password = string(hashedPassword)
 
 	newUser := models.User{Email: request.Email, Username: request.Username, Password: request.Password}
-	if err := database.DataBase.Create(&newUser).Error; err != nil{
+	if err := database.DataBase.Create(&newUser).Error; err != nil {
 		log.Println("couldn't create database record", err)
 		return (fiber.ErrBadRequest)
 	}
 
-	token, err := GenerateJWT(newUser.ID)
+	token, err := jwtGen.GenerateJWT(newUser.ID)
 	if err != nil {
 		log.Println("couldn't create JWT token", err)
 	}
 
 	return c.Status(fiber.StatusOK).SendString(token)
 }
+
 // @Summary Update a user
 // @Description Update an existing user
 // @Tags users
 // @Accept  json
 // @Produce  json
 // @Param id path int true "User ID"
-// @Param user body models.UserSchema true "Updated user data"
-// @Success 200 {object} models.UserSchema
+// @Param user body models.User true "Updated user data"
+// @Success 200 {object} models.User
 // @Router /api/users [put]
 func UpdateUser(c *fiber.Ctx) error {
 	var request models.User

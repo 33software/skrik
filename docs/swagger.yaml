@@ -1,12 +1,5 @@
 definitions:
-  models.UserSchema:
-    properties:
-      email:
-        type: string
-      userid:
-        type: integer
-      username:
-        type: string
+  models.User:
     type: object
 info:
   contact: {}
@@ -58,14 +51,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.UserSchema'
+          $ref: '#/definitions/models.User'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserSchema'
+            $ref: '#/definitions/models.User'
       summary: Create a new user
       tags:
       - users
@@ -84,14 +77,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.UserSchema'
+          $ref: '#/definitions/models.User'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserSchema'
+            $ref: '#/definitions/models.User'
       summary: Update a user
       tags:
       - users
