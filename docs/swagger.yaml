@@ -58,12 +58,12 @@ paths:
         schema:
           $ref: '#/definitions/models.User'
       produces:
-      - application/json
+      - text/plain
       responses:
         "200":
-          description: OK
+          description: JWT Token
           schema:
-            $ref: '#/definitions/models.User'
+            type: string
       summary: Create a new user
       tags:
       - users

@@ -79,22 +79,33 @@ func CreateUser(c *fiber.Ctx) error {
 // @Success 200 {object} models.User
 // @Router /api/users [put]
 func UpdateUser(c *fiber.Ctx) error {
-	var request models.User
+	var request map[string]interface{}
+	var user models.User
 	userid := c.Query("userid")
 	if userid == "" {
 		return c.Status(fiber.StatusNotFound).SendString(fiber.ErrBadRequest.Error())
 	}
-
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
 	}
+	if err := database.DataBase.First(&user, "ID=?", userid).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).SendString("user not found")
+		}
+		return c.Status(fiber.StatusBadRequest).SendString("panic")
+	}
 
-	return c.JSON(
-		fiber.Map{
-			"userid":   request.ID,
-			"username": request.Username,
-			"email":    request.Email,
-		})
+	for key, value := range request {
+		if value == "" || value == nil {
+			delete(request, key)
+		}
+	}
+
+	if err := database.DataBase.Model(&user).Updates(request).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Error updating user")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(request)
 }
 
 // @Summary Delete a user
