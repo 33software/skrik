@@ -120,7 +120,9 @@ func DeleteUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(fiber.ErrBadRequest.Error())
 	}
 
-	database.DataBase.Delete(&user, userid)
+	if err := database.DataBase.Delete(&user, userid).Error; err != nil {
+		c.Status(fiber.StatusInternalServerError).SendString(("couldn't delete the user"))
+	}
 
 	return c.Status(fiber.StatusOK).SendString("Delete " + userid)
 }
