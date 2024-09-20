@@ -24,6 +24,9 @@ import (
 func GetUser(c *fiber.Ctx) error {
 	var request models.User
 	user := c.Query("userid")
+	if user == "" {
+		return c.Status(fiber.StatusNotFound).SendString(fiber.ErrBadRequest.Error())
+	}
 
 	if err := database.DataBase.First(&request, "ID= ?", user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
