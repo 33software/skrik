@@ -13,7 +13,13 @@ import (
 
 type User struct {
 	gorm.Model `swaggerignore:"true"`
-	Username   string
-	Email      string `gorm:"unique"`
-	Password   string `json:"-"`
+	Username   string `json:"username"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+}
+
+type Response struct {
+	gorm.Model `swaggerignore:"true"`
+	Username   string `json:"username"`
+	Email      string `json:"email"`
 }

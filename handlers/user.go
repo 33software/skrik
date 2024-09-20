@@ -23,7 +23,7 @@ import (
 // @Router /api/users [get]
 func GetUser(c *fiber.Ctx) error {
 	var request models.User
-	user := c.Query("ID")
+	user := c.Query("userid")
 
 	if err := database.DataBase.First(&request, "ID= ?", user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -54,7 +54,6 @@ func CreateUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(fiber.ErrInternalServerError.Error())
 	}
 	request.Password = string(hashedPassword)
-
 	newUser := models.User{Email: request.Email, Username: request.Username, Password: request.Password}
 	if err := database.DataBase.Create(&newUser).Error; err != nil {
 		log.Println("couldn't create database record", err)
@@ -74,7 +73,7 @@ func CreateUser(c *fiber.Ctx) error {
 // @Tags users
 // @Accept  json
 // @Produce  json
-// @Param id path int true "User ID"
+// @Param userid query string true "User ID"
 // @Param user body models.User true "Updated user data"
 // @Success 200 {object} models.User
 // @Router /api/users [put]
@@ -111,13 +110,17 @@ func UpdateUser(c *fiber.Ctx) error {
 // @Summary Delete a user
 // @Description Delete a user by ID
 // @Tags users
-// @Param id path int true "User ID"
+// @Param userid query string true "User ID"
 // @Success 200 {string} string "User deleted"
 // @Router /api/users [delete]
 func DeleteUser(c *fiber.Ctx) error {
+	var user models.User
 	userid := c.Query("userid")
 	if userid == "" {
 		return c.Status(fiber.StatusBadRequest).SendString(fiber.ErrBadRequest.Error())
 	}
+
+	database.DataBase.Delete(&user, userid)
+
 	return c.Status(fiber.StatusOK).SendString("Delete " + userid)
 }

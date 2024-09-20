@@ -60,10 +60,10 @@ const docTemplate = `{
                 "summary": "Update a user",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
-                        "name": "id",
-                        "in": "path",
+                        "name": "userid",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -125,10 +125,10 @@ const docTemplate = `{
                 "summary": "Delete a user",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
-                        "name": "id",
-                        "in": "path",
+                        "name": "userid",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -148,6 +148,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 },
                 "username": {

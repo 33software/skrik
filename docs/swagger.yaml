@@ -3,6 +3,8 @@ definitions:
     properties:
       email:
         type: string
+      password:
+        type: string
       username:
         type: string
     type: object
@@ -14,10 +16,10 @@ paths:
       description: Delete a user by ID
       parameters:
       - description: User ID
-        in: path
-        name: id
+        in: query
+        name: userid
         required: true
-        type: integer
+        type: string
       responses:
         "200":
           description: User deleted
@@ -73,10 +75,10 @@ paths:
       description: Update an existing user
       parameters:
       - description: User ID
-        in: path
-        name: id
+        in: query
+        name: userid
         required: true
-        type: integer
+        type: string
       - description: Updated user data
         in: body
         name: user

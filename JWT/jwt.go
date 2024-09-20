@@ -15,5 +15,5 @@ func GenerateJWT(userid uint) (string, error) {
 	}
 	newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return newToken.SignedString(EnvConfig.Jwt_keyword)
+	return newToken.SignedString([]byte(EnvConfig.Jwt_keyword))
 }

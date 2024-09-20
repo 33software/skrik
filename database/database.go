@@ -18,11 +18,12 @@ func SetupDb() {
 		" password=" + EnvConfig.Postgres_password +
 		" dbname=" + EnvConfig.Postgres_db +
 		" port=" + EnvConfig.Postgres_port
-	DataBase, err := gorm.Open(postgres.Open(dsn))
+	db, err := gorm.Open(postgres.Open(dsn))
 	if err != nil {
 		log.Println("couldn't connect to database", err)
 		return
 	}
+	DataBase = db
 	err = DataBase.AutoMigrate(models.User{})
 	if err != nil {
 		log.Println("couldn't migrate database user model", err)
