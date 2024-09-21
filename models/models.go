@@ -23,3 +23,7 @@ type Response struct {
 	Username   string `json:"username"`
 	Email      string `json:"email"`
 }
+
+type ErrorResponse struct {
+    Message string `json:"message"`
+}
