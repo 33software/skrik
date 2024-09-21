@@ -1,10 +1,10 @@
 definitions:
-  models.UserSchema:
+  models.User:
     properties:
       email:
         type: string
-      userid:
-        type: integer
+      password:
+        type: string
       username:
         type: string
     type: object
@@ -16,10 +16,10 @@ paths:
       description: Delete a user by ID
       parameters:
       - description: User ID
-        in: path
-        name: id
+        in: query
+        name: userid
         required: true
-        type: integer
+        type: string
       responses:
         "200":
           description: User deleted
@@ -58,14 +58,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.UserSchema'
+          $ref: '#/definitions/models.User'
       produces:
-      - application/json
+      - text/plain
       responses:
         "200":
-          description: OK
+          description: JWT Token
           schema:
-            $ref: '#/definitions/models.UserSchema'
+            type: string
       summary: Create a new user
       tags:
       - users
@@ -75,23 +75,23 @@ paths:
       description: Update an existing user
       parameters:
       - description: User ID
-        in: path
-        name: id
+        in: query
+        name: userid
         required: true
-        type: integer
+        type: string
       - description: Updated user data
         in: body
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.UserSchema'
+          $ref: '#/definitions/models.User'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserSchema'
+            $ref: '#/definitions/models.User'
       summary: Update a user
       tags:
       - users

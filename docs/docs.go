@@ -60,10 +60,10 @@ const docTemplate = `{
                 "summary": "Update a user",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
-                        "name": "id",
-                        "in": "path",
+                        "name": "userid",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -72,7 +72,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UserSchema"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 ],
@@ -80,7 +80,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserSchema"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 }
@@ -91,7 +91,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "text/plain"
                 ],
                 "tags": [
                     "users"
@@ -104,15 +104,15 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UserSchema"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "JWT Token",
                         "schema": {
-                            "$ref": "#/definitions/models.UserSchema"
+                            "type": "string"
                         }
                     }
                 }
@@ -125,10 +125,10 @@ const docTemplate = `{
                 "summary": "Delete a user",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "User ID",
-                        "name": "id",
-                        "in": "path",
+                        "name": "userid",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -144,14 +144,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.UserSchema": {
+        "models.User": {
             "type": "object",
             "properties": {
                 "email": {
                     "type": "string"
                 },
-                "userid": {
-                    "type": "integer"
+                "password": {
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"
