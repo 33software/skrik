@@ -16,6 +16,7 @@ import (
 // @Summary Get user
 // @Description Get a user by ID
 // @Tags users
+// @Security BearerAuth
 // @Accept  json
 // @Produce  json
 // @Param userid query string true "User ID"
@@ -79,6 +80,7 @@ func CreateUser(c *fiber.Ctx) error {
 // @Summary Update a user
 // @Description Update an existing user
 // @Tags users
+// @Security BearerAuth
 // @Accept  json
 // @Produce  json
 // @Param userid query string true "User ID"
@@ -104,7 +106,6 @@ func UpdateUser(c *fiber.Ctx) error {
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "Internal Server Error"})
 	}
-
 	for key, value := range request {
 		if value == "" || value == nil {
 			delete(request, key)
@@ -121,6 +122,7 @@ func UpdateUser(c *fiber.Ctx) error {
 // @Summary Delete a user
 // @Description Delete a user by ID
 // @Tags users
+// @Security BearerAuth
 // @Param userid query string true "User ID"
 // @Success 200 {string} string "User deleted"
 // @Failure 400 {object} models.ErrorResponse "Bad Request"
@@ -144,3 +146,44 @@ func DeleteUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).SendString("Delete " + userid)
 }
 
+// @Summary Login
+// @Description it logs in..
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param user body models.User true "User data"
+// @Success 200 {string} string "Successful"
+// @Failure 400 {object} models.ErrorResponse "Bad Request"
+// @Failure 500 {object} models.ErrorResponse "Internal Server Error"
+// @Router /api/users/login [post]
+func Login(c *fiber.Ctx) error {
+	var request models.User
+	var user models.User
+
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "Internal Server Error"})
+	}
+
+	if err := database.DataBase.First(&user, "Email = ?", request.Email).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{Message: "User not found"})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "Internal Server Error"})
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			c.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{Message: "password deosn't match"})
+		}
+		return c.Status(fiber.StatusUnauthorized).JSON(models.ErrorResponse{Message: "panic"})
+	}
+
+	token, err := jwtGen.GenerateJWT(user.ID)
+	if err != nil {
+		log.Println("couldn't create JWT token", err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"token": token,
+	})
+}
