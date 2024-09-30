@@ -8,6 +8,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -50,6 +51,7 @@ func GetUser(c *fiber.Ctx) error {
 // @Param user body models.User true "User data"
 // @Success 200 {string} string "JWT Token"
 // @Failure 400 {object} models.ErrorResponse "Bad Request"
+// @Failure 409 {object} models.ErrorResponse "There's already user with that email"
 // @Failure 500 {object} models.ErrorResponse "Internal Server Error"
 // @Router /api/users [post]
 func CreateUser(c *fiber.Ctx) error {
@@ -65,6 +67,9 @@ func CreateUser(c *fiber.Ctx) error {
 	request.Password = string(hashedPassword)
 	newUser := models.User{Email: request.Email, Username: request.Username, Password: request.Password}
 	if err := database.DataBase.Create(&newUser).Error; err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return c.Status(fiber.StatusConflict).JSON(models.ErrorResponse{Message: "There's already user with that email"})
+		}
 		log.Println("couldn't create database record", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "Bad Request"})
 	}
@@ -93,7 +98,10 @@ func CreateUser(c *fiber.Ctx) error {
 func UpdateUser(c *fiber.Ctx) error {
 	var request map[string]interface{}
 	var user models.User
-	userid := c.Query("userid")
+	//userid := c.Query("userid")
+	tokendata := c.Locals("user").(*jwt.Token)
+	claims := tokendata.Claims.(jwt.MapClaims)
+	userid := claims["userid"]
 	if userid == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "Bad Request"})
 	}

@@ -14,7 +14,7 @@ import (
 type User struct {
 	gorm.Model `swaggerignore:"true"`
 	Username   string `json:"username"`
-	Email      string `json:"email"`
+	Email      string `gorm:"unique" json:"email"`
 	Password   string `json:"password"`
 }
 
@@ -25,5 +25,5 @@ type Response struct {
 }
 
 type ErrorResponse struct {
-    Message string `json:"message"`
+	Message string `json:"message"`
 }

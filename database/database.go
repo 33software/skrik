@@ -18,7 +18,7 @@ func SetupDb() {
 		" password=" + EnvConfig.Postgres_password +
 		" dbname=" + EnvConfig.Postgres_db +
 		" port=" + EnvConfig.Postgres_port
-	db, err := gorm.Open(postgres.Open(dsn))
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{TranslateError: true})
 	if err != nil {
 		log.Println("couldn't connect to database", err)
 		return
@@ -29,10 +29,6 @@ func SetupDb() {
 		log.Println("couldn't migrate database user model", err)
 		return
 	}
-
-
-
-
 
 	var result int64
 	DataBase.Raw("SELECT 1").Scan(&result)
