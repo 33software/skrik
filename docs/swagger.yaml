@@ -119,11 +119,6 @@ paths:
       - application/json
       description: Update an existing user
       parameters:
-      - description: User ID
-        in: query
-        name: userid
-        required: true
-        type: string
       - description: Updated user data
         in: body
         name: user

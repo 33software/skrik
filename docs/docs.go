@@ -88,13 +88,6 @@ const docTemplate = `{
                 "summary": "Update a user",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "userid",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
                         "description": "Updated user data",
                         "name": "user",
                         "in": "body",

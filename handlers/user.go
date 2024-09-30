@@ -88,7 +88,6 @@ func CreateUser(c *fiber.Ctx) error {
 // @Security BearerAuth
 // @Accept  json
 // @Produce  json
-// @Param userid query string true "User ID"
 // @Param user body models.User true "Updated user data"
 // @Success 200 {object} models.User
 // @Failure 400 {object} models.ErrorResponse "Bad Request"
