@@ -16,37 +16,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/users:
-    delete:
-      description: Delete a user by ID
-      parameters:
-      - description: User ID
-        in: query
-        name: userid
-        required: true
-        type: string
-      responses:
-        "200":
-          description: User deleted
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "404":
-          description: User not found
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Delete a user
-      tags:
-      - users
+  /api/account:
     get:
       consumes:
       - application/json
@@ -79,39 +49,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Get user
-      tags:
-      - users
-    post:
-      consumes:
-      - application/json
-      description: Create a new user with the input data
-      parameters:
-      - description: User data
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
-      produces:
-      - text/plain
-      responses:
-        "200":
-          description: JWT Token
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "409":
-          description: There's already user with that email
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Create a new user
       tags:
       - users
     put:
@@ -149,7 +86,38 @@ paths:
       summary: Update a user
       tags:
       - users
-  /api/users/login:
+  /api/account/:
+    delete:
+      description: Delete a user by ID
+      parameters:
+      - description: User ID
+        in: query
+        name: userid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: User deleted
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a user
+      tags:
+      - users
+  /api/account/login:
     post:
       consumes:
       - application/json
@@ -177,6 +145,40 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Login
+      tags:
+      - users
+  /api/account/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with the input data
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: JWT Token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: There's already user with that email
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Create a new user
       tags:
       - users
 securityDefinitions:

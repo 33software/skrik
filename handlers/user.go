@@ -25,7 +25,7 @@ import (
 // @Failure 400 {object} models.ErrorResponse "Bad Request"
 // @Failure 404 {object} models.ErrorResponse "User not found"
 // @Failure 500 {object} models.ErrorResponse "Internal Server Error"
-// @Router /api/users [get]
+// @Router /api/account [get]
 func GetUser(c *fiber.Ctx) error {
 	var request models.User
 	user := c.Query("userid")
@@ -53,7 +53,7 @@ func GetUser(c *fiber.Ctx) error {
 // @Failure 400 {object} models.ErrorResponse "Bad Request"
 // @Failure 409 {object} models.ErrorResponse "There's already user with that email"
 // @Failure 500 {object} models.ErrorResponse "Internal Server Error"
-// @Router /api/users [post]
+// @Router /api/account/register [post]
 func CreateUser(c *fiber.Ctx) error {
 	var request models.User
 	if err := c.BodyParser(&request); err != nil {
@@ -93,7 +93,7 @@ func CreateUser(c *fiber.Ctx) error {
 // @Failure 400 {object} models.ErrorResponse "Bad Request"
 // @Failure 404 {object} models.ErrorResponse "User not found"
 // @Failure 500 {object} models.ErrorResponse "Internal Server Error"
-// @Router /api/users [put]
+// @Router /api/account [put]
 func UpdateUser(c *fiber.Ctx) error {
 	var request map[string]interface{}
 	var user models.User
@@ -135,7 +135,7 @@ func UpdateUser(c *fiber.Ctx) error {
 // @Failure 400 {object} models.ErrorResponse "Bad Request"
 // @Failure 404 {object} models.ErrorResponse "User not found"
 // @Failure 500 {object} models.ErrorResponse "Internal Server Error"
-// @Router /api/users [delete]
+// @Router /api/account/ [delete]
 func DeleteUser(c *fiber.Ctx) error {
 	var user models.User
 	userid := c.Query("userid")
@@ -162,7 +162,7 @@ func DeleteUser(c *fiber.Ctx) error {
 // @Success 200 {string} string "Successful"
 // @Failure 400 {object} models.ErrorResponse "Bad Request"
 // @Failure 500 {object} models.ErrorResponse "Internal Server Error"
-// @Router /api/users/login [post]
+// @Router /api/account/login [post]
 func Login(c *fiber.Ctx) error {
 	var request models.User
 	var user models.User

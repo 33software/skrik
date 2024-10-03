@@ -16,14 +16,15 @@ import (
 
 func SetupUserRoutes(app *fiber.App) {
 	api := app.Group("/api")
+	account := api.Group(("/account"))
 
-	api.Post("/users", handlers.CreateUser)
-	api.Post("/users/login", handlers.Login)
+	account.Post("/register", handlers.CreateUser)
+	account.Post("/login", handlers.Login)
 
-	api.Use(jwtGen.JwtProtected())
-	api.Get("/users", handlers.GetUser)
-	api.Put("/users", handlers.UpdateUser)
-	api.Delete("/users", handlers.DeleteUser)
+	account.Use(jwtGen.JwtProtected())
+	account.Get("", handlers.GetUser)
+	account.Put("", handlers.UpdateUser)
+	account.Delete("/users", handlers.DeleteUser)
 }
 
 func SetupSwagger(app *fiber.App) {
