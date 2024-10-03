@@ -79,7 +79,7 @@ func CreateUser(c *fiber.Ctx) error {
 		log.Println("couldn't create JWT token", err)
 	}
 
-	return c.Status(fiber.StatusOK).SendString(token)
+	return c.Status(fiber.StatusOK).SendString(token) //nolint:errcheck
 }
 
 // @Summary Update a user
@@ -123,7 +123,7 @@ func UpdateUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "Error updating user"})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(request)
+	return c.Status(fiber.StatusOK).JSON(request) //nolint:errcheck
 }
 
 // @Summary Delete a user
@@ -150,7 +150,7 @@ func DeleteUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "Internal Server Error"})
 	}
 
-	return c.Status(fiber.StatusOK).SendString("Delete " + userid)
+	return c.Status(fiber.StatusOK).SendString("Delete " + userid) //nolint:errcheck
 }
 
 // @Summary Login
@@ -189,8 +189,9 @@ func Login(c *fiber.Ctx) error {
 	if err != nil {
 		log.Println("couldn't create JWT token", err)
 	}
-
+	//nolint:errcheck
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"token": token,
 	})
+	//
 }
