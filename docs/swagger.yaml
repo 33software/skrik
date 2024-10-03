@@ -1,4 +1,9 @@
 definitions:
+  models.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
   models.User:
     properties:
       email:
@@ -11,23 +16,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/users:
-    delete:
-      description: Delete a user by ID
-      parameters:
-      - description: User ID
-        in: query
-        name: userid
-        required: true
-        type: string
-      responses:
-        "200":
-          description: User deleted
-          schema:
-            type: string
-      summary: Delete a user
-      tags:
-      - users
+  /api/account:
     get:
       consumes:
       - application/json
@@ -42,12 +31,123 @@ paths:
       - application/json
       responses:
         "200":
-          description: Hello World
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get user
       tags:
       - users
+    put:
+      consumes:
+      - application/json
+      description: Update an existing user
+      parameters:
+      - description: Updated user data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a user
+      tags:
+      - users
+  /api/account/:
+    delete:
+      description: Delete a user by ID
+      parameters:
+      - description: User ID
+        in: query
+        name: userid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: User deleted
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a user
+      tags:
+      - users
+  /api/account/login:
+    post:
+      consumes:
+      - application/json
+      description: it logs in..
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Login
+      tags:
+      - users
+  /api/account/register:
     post:
       consumes:
       - application/json
@@ -66,33 +166,24 @@ paths:
           description: JWT Token
           schema:
             type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: There's already user with that email
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Create a new user
       tags:
       - users
-    put:
-      consumes:
-      - application/json
-      description: Update an existing user
-      parameters:
-      - description: User ID
-        in: query
-        name: userid
-        required: true
-        type: string
-      - description: Updated user data
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
-      summary: Update a user
-      tags:
-      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
