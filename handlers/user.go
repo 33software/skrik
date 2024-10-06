@@ -4,6 +4,7 @@ import (
 	jwtGen "audio-stream-golang/JWT"
 	"audio-stream-golang/database"
 	"audio-stream-golang/models"
+	smtpModule "audio-stream-golang/smtp"
 	"errors"
 	"log"
 
@@ -76,7 +77,16 @@ func CreateUser(c *fiber.Ctx) error {
 
 	token, err := jwtGen.GenerateJWT(newUser.ID)
 	if err != nil {
-		log.Println("couldn't create JWT token", err)
+		c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "couldn't create JWT token"})
+	}
+	VerifyJWT, err := jwtGen.GenerateVerificationJWT(newUser.ID)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "couldn't create email verification token"}) //nolint:errcheck
+	}
+	
+	err = smtpModule.SendEmail(newUser.Email, "email verification", "localhost:8080/api/account/verify?token=", VerifyJWT)
+	if err != nil {
+		log.Println("couldn't send an email", err) //nolint:errcheck
 	}
 
 	return c.Status(fiber.StatusOK).SendString(token) //nolint:errcheck
@@ -195,3 +205,12 @@ func Login(c *fiber.Ctx) error {
 	})
 	//
 }
+
+/*
+func VerifyEmail (c *fiber.Ctx) error {
+
+
+
+
+	return
+}*/

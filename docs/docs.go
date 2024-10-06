@@ -288,6 +288,9 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
+                "isVerified": {
+                    "type": "boolean"
+                },
                 "password": {
                     "type": "string"
                 },
