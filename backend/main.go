@@ -1,10 +1,10 @@
 package main
 
 import (
-	"audio-stream-golang/config"
-	"audio-stream-golang/database"
-	_ "audio-stream-golang/docs"
-	"audio-stream-golang/routes"
+	"skrik/config"
+	"skrik/database"
+	_ "skrik/docs"
+	"skrik/routes"
 	"log"
 	"github.com/gofiber/fiber/v2"
 )

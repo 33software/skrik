@@ -1,10 +1,10 @@
 package routes
 
 import (
-	_ "audio-stream-golang/docs"
-	"audio-stream-golang/handlers"
+	_ "skrik/docs"
+	"skrik/handlers"
 
-	jwtGen "audio-stream-golang/JWT"
+	jwtGen "skrik/JWT"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"

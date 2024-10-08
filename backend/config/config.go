@@ -1,8 +1,9 @@
 package config
 
 import (
-	"os"
 	"log"
+	"os"
+
 	"github.com/joho/godotenv"
 )
 
@@ -14,17 +15,16 @@ type CfgData struct {
 	Postgres_port     string
 	App_ip            string
 	App_port          string
-	Jwt_keyword		  string
-	Smtp_host 		  string
+	Jwt_keyword       string
+	Smtp_host         string
 	Smtp_port         string
 	Smtp_sender       string
-
 }
 
 func GetConfig() CfgData {
-	if err := godotenv.Load("dev.env"); err != nil {
-        log.Fatalf("Error loading .env file: %v", err)
-    }
+	if err := godotenv.Load("../dev.env"); err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
 	envConfig := CfgData{
 		Postgres_user:     os.Getenv("POSTGRES_USER"),
 		Postgres_db:       os.Getenv("POSTGRES_DB"),
@@ -34,9 +34,9 @@ func GetConfig() CfgData {
 		App_ip:            os.Getenv("APP_IP"),
 		App_port:          os.Getenv("APP_PORT"),
 		Jwt_keyword:       os.Getenv("JWT_KEYWORD"),
-		Smtp_sender: 	   os.Getenv("SMTP_SENDER"),
-		Smtp_host:  	   os.Getenv("SMTP_HOST"),
-		Smtp_port: 		   os.Getenv("SMTP_PORT"),
+		Smtp_sender:       os.Getenv("SMTP_SENDER"),
+		Smtp_host:         os.Getenv("SMTP_HOST"),
+		Smtp_port:         os.Getenv("SMTP_PORT"),
 	}
 	return envConfig
 }

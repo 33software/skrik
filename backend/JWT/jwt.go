@@ -1,7 +1,7 @@
 package jwtGen
 
 import (
-	"audio-stream-golang/config"
+	"skrik/config"
 	"time"
 
 	"github.com/gofiber/fiber/v2"

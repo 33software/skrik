@@ -11,9 +11,9 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY entrypoint.sh entrypoint.sh
-ENTRYPOINT ["/app/entrypoint.sh"]
+RUN chmod +x entrypoint.sh
 # Копируем все файлы проекта в контейнер
 COPY . .
-
+ENTRYPOINT ["/app/backend/entrypoint.sh"]
 # Запускаем приложение с использованием go run
 CMD ["air", "-c", ".air.toml"]

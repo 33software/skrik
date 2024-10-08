@@ -1,8 +1,8 @@
 package database
 
 import (
-	"audio-stream-golang/config"
-	"audio-stream-golang/models"
+	"skrik/config"
+	"skrik/models"
 	"log"
 
 	"gorm.io/driver/postgres"

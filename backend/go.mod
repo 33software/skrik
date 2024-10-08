@@ -1,4 +1,4 @@
-module audio-stream-golang
+module skrik
 
 go 1.23
 
