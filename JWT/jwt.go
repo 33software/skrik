@@ -19,6 +19,26 @@ func GenerateJWT(userid uint) (string, error) {
 
 	return newToken.SignedString([]byte(EnvConfig.Jwt_keyword))
 }
+func GenerateVerificationJWT(userid uint) (string, error) {
+	EnvConfig := config.GetConfig()
+	claims := jwt.MapClaims{
+		"userid": userid,
+		"exp":    time.Now().Add(time.Minute * 15).Unix(),
+	}
+	newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return newToken.SignedString([]byte(EnvConfig.Jwt_keyword))
+}
+func GenerateRecoveryJWT(userid uint) (string, error) {
+	EnvConfig := config.GetConfig()
+	claims := jwt.MapClaims{
+		"userid": userid,
+		"exp":    time.Now().Add(time.Minute * 15).Unix(),
+	}
+	newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return newToken.SignedString([]byte(EnvConfig.Jwt_keyword))
+}
 
 func JwtProtected() fiber.Handler {
 	EnvConfig := config.GetConfig()
