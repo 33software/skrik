@@ -2,7 +2,7 @@
 FROM golang:1.23-alpine
 
 # Устанавливаем рабочую директорию внутри контейнера
-WORKDIR /app
+WORKDIR /app/backend
 
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN go install github.com/air-verse/air@latest
@@ -10,10 +10,15 @@ RUN go install github.com/air-verse/air@latest
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY entrypoint.sh entrypoint.sh
-ENTRYPOINT ["/app/entrypoint.sh"]
-# Копируем все файлы проекта в контейнер
 COPY . .
 
+
+RUN chmod +x entrypoint.sh
+
+# Копируем все файлы проекта в контейнер
+ENTRYPOINT ["/app/backend/entrypoint.sh"]
+
+
+
 # Запускаем приложение с использованием go run
-CMD ["air", "-c", ".air.toml"]
+CMD ["air", "-c", "/app/.air.toml"]

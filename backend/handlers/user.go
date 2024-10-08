@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	jwtGen "audio-stream-golang/JWT"
-	"audio-stream-golang/config"
-	"audio-stream-golang/database"
-	"audio-stream-golang/models"
-	smtpModule "audio-stream-golang/smtp"
+	jwtGen "skrik/JWT"
+	"skrik/config"
+	"skrik/database"
+	"skrik/models"
+	smtpModule "skrik/smtp"
 	"errors"
 	"log"
 

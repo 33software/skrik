@@ -1,10 +1,10 @@
 package smtpModule
 
 import (
-	"audio-stream-golang/config"
 	"fmt"
 	"log"
 	"net/smtp"
+	"skrik/config"
 )
 
 func SendEmail(to string, subject string, body string, token string) error {
