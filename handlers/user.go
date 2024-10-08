@@ -2,6 +2,7 @@ package handlers
 
 import (
 	jwtGen "audio-stream-golang/JWT"
+	"audio-stream-golang/config"
 	"audio-stream-golang/database"
 	"audio-stream-golang/models"
 	smtpModule "audio-stream-golang/smtp"
@@ -83,7 +84,7 @@ func CreateUser(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "couldn't create email verification token"}) //nolint:errcheck
 	}
-	
+
 	err = smtpModule.SendEmail(newUser.Email, "email verification", "localhost:8080/api/account/verify?token=", VerifyJWT)
 	if err != nil {
 		log.Println("couldn't send an email", err) //nolint:errcheck
@@ -206,11 +207,116 @@ func Login(c *fiber.Ctx) error {
 	//
 }
 
-/*
-func VerifyEmail (c *fiber.Ctx) error {
+func VerifyEmail(c *fiber.Ctx) error {
+	var user models.User
+	EnvConfig := config.GetConfig()
+	tokenQuery := c.Query("token")
+	token, err := jwt.Parse(tokenQuery, func(token *jwt.Token) (interface{}, error) {
+		return []byte(EnvConfig.Jwt_keyword), nil
+	})
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "invalid token"})//nolint:errcheck
+	}
+	if !token.Valid {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "panic"})//nolint:errcheck
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	if claims["userid"] == nil || claims["userid"] == "" {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "empty id"})//nolint:errcheck
+	}
+	userID := claims["userid"]
+	if err := database.DataBase.First(&user, userID).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "panic"})//nolint:errcheck
+	}
+	user.IsVerified = true
+	if err := database.DataBase.Save(&user).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "couldn't verify"})//nolint:errcheck
+	}
+	return c.Status(fiber.StatusOK).SendString("verified")
+}
 
+// @Summary Reset
+// @Description it resets password....
+// @Tags users
+// @Accept  json
+// @Produce  plain
+// @Param user body models.User true "User data"
+// @Success 200 {string} string "email sent"
+// @Failure 400 {object} models.ErrorResponse "Bad Request"
+// @Failure 500 {object} models.ErrorResponse "Internal Server Error"
+// @Router /api/account/reset [post]
+func ResetPassword(c *fiber.Ctx) error {
+	var request models.User
+	var user models.User
+	if err := c.BodyParser(&request); err != nil {
+		c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "Bad request"})//nolint:errcheck
+	}
 
+	if err := database.DataBase.First(&user, "email = ?", request.Email).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{Message: "no such email"})//nolint:errcheck
+		}
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "Bad request111"})//nolint:errcheck
+	}
 
+	token, err := jwtGen.GenerateVerificationJWT(user.ID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "Bad request"})//nolint:errcheck
+	}
+	smtpModule.SendEmail(user.Email, "Password recovery link", "localhost:8080/api/account/reset?token=", token)//nolint:errcheck
 
-	return
-}*/
+	return c.Status(fiber.StatusOK).SendString("email sent")
+}
+
+// @Summary reset password
+// @Description it resets password..
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param token query string true "token"
+// @Param user body models.User true "User data"
+// @Success 200 {object} models.User
+// @Failure 400 {object} models.ErrorResponse "Bad Request"
+// @Failure 404 {object} models.ErrorResponse "User not found"
+// @Failure 500 {object} models.ErrorResponse "Internal Server Error"
+// @Router /api/account/resetendpoint [post]
+func ResetEndpoint(c *fiber.Ctx) error {
+	EnvConfig := config.GetConfig()
+	var user models.User
+	var request models.User
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "couldn't parse body"})//nolint:errcheck
+	}
+	tokenQuery := c.Query("token")
+	token, err := jwt.Parse(tokenQuery, func(token *jwt.Token) (interface{}, error) {
+		return []byte(EnvConfig.Jwt_keyword), nil
+	})
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "invalid token"})//nolint:errcheck
+	}
+	if !token.Valid {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "panic"})//nolint:errcheck
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	if claims["userid"] == nil || claims["userid"] == "" {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "empty id"})//nolint:errcheck
+	}
+	userID := claims["userid"]
+
+	if err := database.DataBase.First(&user, userID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{Message: "couldn't find user"})//nolint:errcheck
+		}
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "panic"})//nolint:errcheck
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 10)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "couldn't create password hash"})//nolint:errcheck
+	}
+	user.Password = string(hashedPassword)
+
+	if err := database.DataBase.Save(&user).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "couldn't update password"})//nolint:errcheck
+	}
+	return c.Status(fiber.StatusOK).JSON(&user)//nolint:errcheck it sends user back cuz i wanted (and might want in future) to see if it changes password and nothing else. zxcursed
+}
