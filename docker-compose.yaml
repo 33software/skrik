@@ -9,7 +9,7 @@ services:
       - dev.env
     volumes:
       - .:/app
-      - ./tmp:/tmp
+      - ./backend:/app/backend
     depends_on:
       - postgres
       - mailpit
