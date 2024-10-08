@@ -78,7 +78,7 @@ func CreateUser(c *fiber.Ctx) error {
 
 	token, err := jwtGen.GenerateJWT(newUser.ID)
 	if err != nil {
-		c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "couldn't create JWT token"})
+		c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "couldn't create JWT token"})//nolint:errcheck
 	}
 	VerifyJWT, err := jwtGen.GenerateVerificationJWT(newUser.ID)
 	if err != nil {
