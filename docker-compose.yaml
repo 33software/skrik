@@ -1,7 +1,8 @@
 version: '3.8'
 
 services: 
-  app:
+
+  backend:
     build: /backend
     ports:
       - "8080:8080"
@@ -13,6 +14,7 @@ services:
     depends_on:
       - postgres
       - mailpit
+
 
   postgres:
     image: postgres:15
@@ -26,3 +28,11 @@ services:
     ports:
       - "1025:1025"
       - "8025:8025"
+  
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "8081:80" 
+    depends_on:
+      - backend
