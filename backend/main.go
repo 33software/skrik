@@ -3,7 +3,6 @@ package main
 import (
 	"skrik/config"
 	"skrik/database"
-	_ "skrik/docs"
 	"skrik/routes"
 	"log"
 	"github.com/gofiber/fiber/v2"

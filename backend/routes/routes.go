@@ -1,7 +1,6 @@
 package routes
 
 import (
-	_ "skrik/docs"
 	"skrik/handlers"
 
 	jwtGen "skrik/JWT"
