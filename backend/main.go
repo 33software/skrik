@@ -4,7 +4,6 @@ import (
 	"log"
 	"skrik/config"
 	"skrik/database"
-	_ "skrik/docs"
 	"skrik/routes"
 
 	"github.com/gofiber/fiber/v2"

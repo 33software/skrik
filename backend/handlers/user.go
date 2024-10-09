@@ -13,6 +13,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"github.com/gofiber/websocket/v2"
 )
 
 // GetUser gets a user by ID
@@ -319,4 +320,23 @@ func ResetEndpoint(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "couldn't update password"})//nolint:errcheck
 	}
 	return c.Status(fiber.StatusOK).JSON(&user)//nolint:errcheck it sends user back cuz i wanted (and might want in future) to see if it changes password and nothing else. zxcursed
+}
+
+func Setup(app *fiber.App) {
+	// Добавляем WebSocket маршрут
+	app.Get("/api/user_call", websocket.New(func(c *websocket.Conn) {
+		defer c.Close()
+		for {
+			// Чтение сообщений от клиента
+			mt, message, err := c.ReadMessage()
+			if err != nil {
+				break
+			}
+			// Отправляем сообщение обратно клиенту
+			err = c.WriteMessage(mt, message)
+			if err != nil {
+				break
+			}
+		}
+	}))
 }
