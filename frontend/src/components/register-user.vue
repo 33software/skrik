@@ -1,41 +1,62 @@
 <template>
-  <div>
-    <h2>Register</h2>
-    <form @submit.prevent="registerUser">
-      <input v-model="email" type="email" placeholder="Email" required />
-      <input v-model="password" type="password" placeholder="Password" required />
+  <div class="register">
+    <form @submit.prevent="register">
+      <div>
+        <label for="email">Username:</label>
+        <input type="username" v-model="username" required />
+      </div>
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" v-model="email" required />
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" v-model="password" required />
+      </div>
       <button type="submit">Register</button>
     </form>
+
+    <div v-if="errorMessage" class="error">
+      {{ errorMessage }}
+    </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
+      username: '',
       email: '',
       password: '',
+      errorMessage: null,
     };
   },
   methods: {
-    async registerUser() {
-      const response = await fetch('http://localhost:8080/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+    async register() {
+      try {
+        const response = await axios.post('http://localhost:8080/api/account/register', {
+          username: this.username,
           email: this.email,
           password: this.password,
-        }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        this.$router.push('/login');
-      } else {
-        alert('Registration failed');
+        });
+
+        const token = response.data.token;
+        localStorage.setItem('token', token);
+
+        this.$router.push('/');
+      } catch (error) {
+        this.errorMessage = error.response.data.message || 'Registration failed';
       }
     },
   },
 };
 </script>
+
+<style>
+.error {
+  color: red;
+}
+</style>
