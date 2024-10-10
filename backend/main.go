@@ -4,8 +4,9 @@ import (
 	"log"
 	"skrik/config"
 	"skrik/database"
+	"skrik/handlers"
 	"skrik/routes"
-
+	_"skrik/docs"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -19,6 +20,7 @@ func main() {
 		AllowMethods: "GET,POST,HEAD,PUT,DELETE,OPTIONS",
 		AllowHeaders: "Content-Type, Authorization",
 	}))
+	handlers.Setup(app)
 	routes.SetupUserRoutes(app)
 	routes.SetupSwagger(app)
 	log.Fatal(app.Listen(EnvConfig.App_ip + ":" + EnvConfig.App_port))
