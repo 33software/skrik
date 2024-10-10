@@ -35,23 +35,21 @@ export default {
     };
   },
   methods: {
-    async register() {
-      try {
-        const response = await axios.post('http://localhost:8080/api/account/register', {
-          username: this.username,
-          email: this.email,
-          password: this.password,
-        });
+  async register() {
+    try {
+      await axios.post('http://localhost:8080/api/account/register', {
+        username: this.username,
+        email: this.email,
+        password: this.password,
+      });
 
-        const token = response.data.token;
-        localStorage.setItem('token', token);
-
-        this.$router.push('/');
-      } catch (error) {
-        this.errorMessage = error.response.data.message || 'Registration failed';
-      }
-    },
+      this.$router.push('/verify-email');
+    } catch (error) {
+      this.errorMessage = error.response.data.message || 'Registration failed';
+    }
   },
+}
+
 };
 </script>
 
