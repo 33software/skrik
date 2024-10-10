@@ -35,21 +35,24 @@ export default {
     };
   },
   methods: {
-  async register() {
-    try {
-      await axios.post('http://localhost:8080/api/account/register', {
-        username: this.username,
-        email: this.email,
-        password: this.password,
-      });
+    async register() {
+      try {
+        await axios.post('http://localhost:8080/api/account/register', {
+          username: this.username,
+          email: this.email,
+          password: this.password,
+        });
 
-      this.$router.push('/verify-email');
-    } catch (error) {
-      this.errorMessage = error.response.data.message || 'Registration failed';
-    }
+        this.$router.push('/verify-email');
+      } catch (error) {
+        if (error.response && error.response.data) {
+          this.errorMessage = error.response.data.message || 'Registration failed';
+        } else {
+          this.errorMessage = 'An error occurred. Please try again.';
+        }
+      }
+    },
   },
-}
-
 };
 </script>
 
