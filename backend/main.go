@@ -4,9 +4,10 @@ import (
 	"log"
 	"skrik/config"
 	"skrik/database"
+	_ "skrik/docs"
 	"skrik/handlers"
 	"skrik/routes"
-	_"skrik/docs"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -16,7 +17,7 @@ func main() {
 	database.SetupDb()
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:8081",
+		AllowOrigins: "http://localhost:8081, http://localhost:3000",
 		AllowMethods: "GET,POST,HEAD,PUT,DELETE,OPTIONS",
 		AllowHeaders: "Content-Type, Authorization",
 	}))
