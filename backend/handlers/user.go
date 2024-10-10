@@ -324,7 +324,7 @@ func ResetEndpoint(c *fiber.Ctx) error {
 
 func Setup(app *fiber.App) {
 	// Добавляем WebSocket маршрут
-	app.Get("/api/user_call", websocket.New(func(c *websocket.Conn) {
+	app.Get("/api/:user1_:user2_call", websocket.New(func(c *websocket.Conn) {
 		defer c.Close()
 		for {
 			// Чтение сообщений от клиента
