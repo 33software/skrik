@@ -1,10 +1,10 @@
 package routes
 
 import (
-	_ "skrik/docs"
 	"skrik/handlers"
 
 	jwtGen "skrik/JWT"
+	//_ "skrik/docs"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"

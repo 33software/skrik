@@ -37,18 +37,19 @@ export default {
   methods: {
     async register() {
       try {
-        const response = await axios.post('http://localhost:8080/api/account/register', {
+        await axios.post('http://localhost:8080/api/account/register', {
           username: this.username,
           email: this.email,
           password: this.password,
         });
 
-        const token = response.data.token;
-        localStorage.setItem('token', token);
-
-        this.$router.push('/');
+        this.$router.push('/verify-email');
       } catch (error) {
-        this.errorMessage = error.response.data.message || 'Registration failed';
+        if (error.response && error.response.data) {
+          this.errorMessage = error.response.data.message || 'Registration failed';
+        } else {
+          this.errorMessage = 'An error occurred. Please try again.';
+        }
       }
     },
   },

@@ -1,15 +1,17 @@
 package handlers
 
 import (
+	"errors"
+	"log"
 	jwtGen "skrik/JWT"
 	"skrik/config"
 	"skrik/database"
 	"skrik/models"
 	smtpModule "skrik/smtp"
-	"errors"
-	"log"
+	"sync"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/websocket/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -78,7 +80,7 @@ func CreateUser(c *fiber.Ctx) error {
 
 	token, err := jwtGen.GenerateJWT(newUser.ID)
 	if err != nil {
-		c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "couldn't create JWT token"})//nolint:errcheck
+		c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "couldn't create JWT token"}) //nolint:errcheck
 	}
 	VerifyJWT, err := jwtGen.GenerateVerificationJWT(newUser.ID)
 	if err != nil {
@@ -215,22 +217,22 @@ func VerifyEmail(c *fiber.Ctx) error {
 		return []byte(EnvConfig.Jwt_keyword), nil
 	})
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "invalid token"})//nolint:errcheck
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "invalid token"}) //nolint:errcheck
 	}
 	if !token.Valid {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "panic"})//nolint:errcheck
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "panic"}) //nolint:errcheck
 	}
 	claims := token.Claims.(jwt.MapClaims)
 	if claims["userid"] == nil || claims["userid"] == "" {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "empty id"})//nolint:errcheck
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "empty id"}) //nolint:errcheck
 	}
 	userID := claims["userid"]
 	if err := database.DataBase.First(&user, userID).Error; err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "panic"})//nolint:errcheck
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "panic"}) //nolint:errcheck
 	}
 	user.IsVerified = true
 	if err := database.DataBase.Save(&user).Error; err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "couldn't verify"})//nolint:errcheck
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "couldn't verify"}) //nolint:errcheck
 	}
 	return c.Status(fiber.StatusOK).SendString("verified")
 }
@@ -249,21 +251,21 @@ func ResetPassword(c *fiber.Ctx) error {
 	var request models.User
 	var user models.User
 	if err := c.BodyParser(&request); err != nil {
-		c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "Bad request"})//nolint:errcheck
+		c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "Bad request"}) //nolint:errcheck
 	}
 
 	if err := database.DataBase.First(&user, "email = ?", request.Email).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{Message: "no such email"})//nolint:errcheck
+			return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{Message: "no such email"}) //nolint:errcheck
 		}
-		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "Bad request111"})//nolint:errcheck
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "Bad request111"}) //nolint:errcheck
 	}
 
 	token, err := jwtGen.GenerateVerificationJWT(user.ID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "Bad request"})//nolint:errcheck
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "Bad request"}) //nolint:errcheck
 	}
-	smtpModule.SendEmail(user.Email, "Password recovery link", "localhost:8080/api/account/reset?token=", token)//nolint:errcheck
+	smtpModule.SendEmail(user.Email, "Password recovery link", "localhost:8080/api/account/reset?token=", token) //nolint:errcheck
 
 	return c.Status(fiber.StatusOK).SendString("email sent")
 }
@@ -285,38 +287,80 @@ func ResetEndpoint(c *fiber.Ctx) error {
 	var user models.User
 	var request models.User
 	if err := c.BodyParser(&request); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "couldn't parse body"})//nolint:errcheck
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "couldn't parse body"}) //nolint:errcheck
 	}
 	tokenQuery := c.Query("token")
 	token, err := jwt.Parse(tokenQuery, func(token *jwt.Token) (interface{}, error) {
 		return []byte(EnvConfig.Jwt_keyword), nil
 	})
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "invalid token"})//nolint:errcheck
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "invalid token"}) //nolint:errcheck
 	}
 	if !token.Valid {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "panic"})//nolint:errcheck
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "panic"}) //nolint:errcheck
 	}
 	claims := token.Claims.(jwt.MapClaims)
 	if claims["userid"] == nil || claims["userid"] == "" {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "empty id"})//nolint:errcheck
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "empty id"}) //nolint:errcheck
 	}
 	userID := claims["userid"]
 
 	if err := database.DataBase.First(&user, userID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{Message: "couldn't find user"})//nolint:errcheck
+			return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{Message: "couldn't find user"}) //nolint:errcheck
 		}
-		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "panic"})//nolint:errcheck
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{Message: "panic"}) //nolint:errcheck
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 10)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "couldn't create password hash"})//nolint:errcheck
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "couldn't create password hash"}) //nolint:errcheck
 	}
 	user.Password = string(hashedPassword)
 
 	if err := database.DataBase.Save(&user).Error; err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "couldn't update password"})//nolint:errcheck
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "couldn't update password"}) //nolint:errcheck
 	}
-	return c.Status(fiber.StatusOK).JSON(&user)//nolint:errcheck it sends user back cuz i wanted (and might want in future) to see if it changes password and nothing else. zxcursed
+	return c.Status(fiber.StatusOK).JSON(&user) //nolint:errcheck it sends user back cuz i wanted (and might want in future) to see if it changes password and nothing else. zxcursed
+}
+
+type connections struct {
+	userid map[int]*websocket.Conn
+	mu     sync.Mutex
+}
+
+var connManager = connections{
+	userid: make(map[int]*websocket.Conn),
+}
+
+func Test(app *fiber.App) {
+	app.Get("api/ws", jwtGen.JwtProtected(), websocket.New(wsHandler))
+}
+
+func wsHandler(c *websocket.Conn) {
+	connManager.mu.Lock()
+	userid, ok := c.Locals("userid").(int)
+	if !ok {
+		c.Close()
+	}
+	connManager.userid[userid] = c
+	connManager.mu.Unlock()
+
+	for {
+		_, msg, err := c.ReadMessage()
+		if err != nil {
+			connManager.mu.Lock()
+			delete(connManager.userid, userid)
+			connManager.mu.Unlock()
+			c.Close()
+			break
+		}
+		go msgHandler(msg, userid)
+	}
+}
+
+func msgHandler(msg []byte, userid int) {
+	for userID := range connManager.userid {
+		reciever := connManager.userid[userID]
+		reciever.WriteMessage(websocket.TextMessage, msg)
+	}
 }

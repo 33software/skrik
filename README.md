@@ -1,5 +1,5 @@
-# audio-stream-golang
-Audio streaming service for educational purposes
+# skrik
+Temporary name of our web rtc thing that should be alternative for discrod in russia
 
 # How to start
 
@@ -33,7 +33,3 @@ air
 ```bash
 docker compose up
 ```
-
-## Tests
-
-Now we writing tests with endpoints! Every test file should be in `tests` folder and have a `_test.go` in the end

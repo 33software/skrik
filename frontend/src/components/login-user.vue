@@ -19,7 +19,7 @@
     },
     methods: {
       async loginUser() {
-        const response = await fetch('http://localhost:8080/login', {
+        const response = await fetch('http://localhost:8080/api/account/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -32,7 +32,7 @@
         const data = await response.json();
         if (data.token) {
           localStorage.setItem('token', data.token);
-          this.$router.push('/dashboard');
+          this.$router.push('/');
         } else {
           alert('Login failed');
         }
