@@ -4,7 +4,7 @@ import (
 	"log"
 	"skrik/config"
 	"skrik/database"
-	//_ "skrik/docs"
+	_ "skrik/docs"
 	"skrik/handlers"
 	"skrik/routes"
 
