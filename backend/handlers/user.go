@@ -8,6 +8,7 @@ import (
 	"skrik/database"
 	"skrik/models"
 	smtpModule "skrik/smtp"
+	"sync"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -322,21 +323,44 @@ func ResetEndpoint(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(&user) //nolint:errcheck it sends user back cuz i wanted (and might want in future) to see if it changes password and nothing else. zxcursed
 }
 
-func Setup(app *fiber.App) {
-	// Добавляем WebSocket маршрут
-	app.Get("/api/ws/:user1_:user2_call", websocket.New(func(c *websocket.Conn) {
-		defer c.Close()
-		for {
-			// Чтение сообщений от клиента
-			mt, message, err := c.ReadMessage()
-			if err != nil {
-				break
-			}
-			// Отправляем сообщение обратно клиенту
-			err = c.WriteMessage(mt, message)
-			if err != nil {
-				break
-			}
+type connections struct {
+	userid map[int]*websocket.Conn
+	mu     sync.Mutex
+}
+
+var connManager = connections{
+	userid: make(map[int]*websocket.Conn),
+}
+
+func Test(app *fiber.App) {
+	app.Get("api/ws", jwtGen.JwtProtected(), websocket.New(wsHandler))
+}
+
+func wsHandler(c *websocket.Conn) {
+	connManager.mu.Lock()
+	userid, ok := c.Locals("userid").(int)
+	if !ok {
+		c.Close()
+	}
+	connManager.userid[userid] = c
+	connManager.mu.Unlock()
+
+	for {
+		_, msg, err := c.ReadMessage()
+		if err != nil {
+			connManager.mu.Lock()
+			delete(connManager.userid, userid)
+			connManager.mu.Unlock()
+			c.Close()
+			break
 		}
-	}))
+		go msgHandler(msg, userid)
+	}
+}
+
+func msgHandler(msg []byte, userid int) {
+	for userID := range connManager.userid {
+		reciever := connManager.userid[userID]
+		reciever.WriteMessage(websocket.TextMessage, msg)
+	}
 }

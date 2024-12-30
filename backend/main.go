@@ -4,7 +4,7 @@ import (
 	"log"
 	"skrik/config"
 	"skrik/database"
-	_ "skrik/docs"
+	//_ "skrik/docs"
 	"skrik/handlers"
 	"skrik/routes"
 
@@ -21,7 +21,7 @@ func main() {
 		AllowMethods: "GET,POST,HEAD,PUT,DELETE,OPTIONS",
 		AllowHeaders: "Content-Type, Authorization",
 	}))
-	handlers.Setup(app)
+	handlers.Test(app)
 	routes.SetupUserRoutes(app)
 	routes.SetupSwagger(app)
 	log.Fatal(app.Listen(EnvConfig.App_ip + ":" + EnvConfig.App_port))

@@ -4,7 +4,7 @@ import (
 	"skrik/handlers"
 
 	jwtGen "skrik/JWT"
-	_ "skrik/docs"
+	//_ "skrik/docs"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
