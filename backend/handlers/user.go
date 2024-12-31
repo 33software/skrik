@@ -371,7 +371,10 @@ func msgHandler(msg []byte, userid int) {
 	}
 connManager.mu.Lock()
 defer connManager.mu.Unlock()
-recConnection := connManager.userid[recieverid]
+recConnection, exists := connManager.userid[recieverid]
+if !exists {
+	return
+}
 if err := recConnection.WriteMessage(websocket.TextMessage, []byte(temp[1])); err != nil {
 	delete(connManager.userid, recieverid)
 	recConnection.Close()
