@@ -340,10 +340,15 @@ func Test(app *fiber.App) {
 
 func wsHandler(c *websocket.Conn) {
 	connManager.mu.Lock()
-	userid, ok := c.Locals("userid").(int)
+	localsToken := c.Locals("user").(*jwt.Token)
+	claims := localsToken.Claims.(jwt.MapClaims)
+	useridFloat, ok := claims["userid"].(float64)
 	if !ok {
 		c.Close()
+		connManager.mu.Unlock()
+		return
 	}
+	userid := int(useridFloat)
 	connManager.userid[userid] = c
 	connManager.mu.Unlock()
 
@@ -369,15 +374,15 @@ func msgHandler(msg []byte, userid int) {
 	if err != nil {
 		return
 	}
-connManager.mu.Lock()
-defer connManager.mu.Unlock()
-recConnection, exists := connManager.userid[recieverid]
-if !exists {
+	connManager.mu.Lock()
+	defer connManager.mu.Unlock()
+	recConnection, exists := connManager.userid[recieverid]
+	if !exists {
+		return
+	}
+	if err := recConnection.WriteMessage(websocket.TextMessage, []byte(temp[1])); err != nil {
+		delete(connManager.userid, recieverid)
+		recConnection.Close()
+	}
 	return
-}
-if err := recConnection.WriteMessage(websocket.TextMessage, []byte(temp[1])); err != nil {
-	delete(connManager.userid, recieverid)
-	recConnection.Close()
-}
-return
 }
