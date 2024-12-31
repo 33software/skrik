@@ -8,6 +8,8 @@ import (
 	"skrik/database"
 	"skrik/models"
 	smtpModule "skrik/smtp"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
@@ -359,8 +361,20 @@ func wsHandler(c *websocket.Conn) {
 }
 
 func msgHandler(msg []byte, userid int) {
-	for userID := range connManager.userid {
-		reciever := connManager.userid[userID]
-		reciever.WriteMessage(websocket.TextMessage, msg)
+	temp := strings.SplitN(string(msg), ":", 2)
+	if len(temp) < 2 {
+		return
 	}
+	recieverid, err := strconv.Atoi(temp[0])
+	if err != nil {
+		return
+	}
+connManager.mu.Lock()
+defer connManager.mu.Unlock()
+recConnection := connManager.userid[recieverid]
+if err := recConnection.WriteMessage(websocket.TextMessage, []byte(temp[1])); err != nil {
+	delete(connManager.userid, recieverid)
+	recConnection.Close()
+}
+return
 }
