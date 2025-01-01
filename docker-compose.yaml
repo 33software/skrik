@@ -30,29 +30,6 @@ services:
     ports:
       - "1025:1025"
       - "8025:8025"
-  
-  # frontend:
-  #   build: ./frontend
-  #   container_name: frontend
-  #   ports:
-  #     - "8081:80" 
-  #   depends_on:
-  #     - backend
-  #   env_file:
-  #     - dev.env
-  frontend:
-    build:
-      context: .
-      dockerfile: ./frontend/Dockerfile.local
-    ports:
-      - "3000:3000"  
-    volumes:
-      - .:/app
-      - /app/node_modules 
-    env_file:
-      - dev.env 
-    depends_on:
-      - backend
 
 volumes:
   db_data:
