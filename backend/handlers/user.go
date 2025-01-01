@@ -370,19 +370,26 @@ func msgHandler(msg []byte, userid int) {
 	if len(temp) < 2 {
 		return
 	}
-	recieverid, err := strconv.Atoi(temp[0])
-	if err != nil {
-		return
-	}
-	connManager.mu.Lock()
-	defer connManager.mu.Unlock()
-	recConnection, exists := connManager.userid[recieverid]
-	if !exists {
-		return
-	}
-	if err := recConnection.WriteMessage(websocket.TextMessage, []byte(temp[1])); err != nil {
-		delete(connManager.userid, recieverid)
-		recConnection.Close()
+	recieverids := strings.Split(temp[0], ",")
+	for _, ids := range recieverids {
+		recieverid, err := strconv.Atoi(ids)
+		if err != nil {
+			continue
+		}
+
+		connManager.mu.Lock()
+		recConnection, exists := connManager.userid[recieverid]
+		connManager.mu.Unlock()
+		if !exists {
+			continue
+		}
+
+		if err := recConnection.WriteMessage(websocket.TextMessage, []byte(temp[1])); err != nil {
+			connManager.mu.Lock()
+			delete(connManager.userid, recieverid)
+			recConnection.Close()
+			connManager.mu.Unlock()
+		}
 	}
 	return
 }
