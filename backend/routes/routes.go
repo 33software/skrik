@@ -27,6 +27,7 @@ func SetupUserRoutes(app *fiber.App) {
 	account.Get("", handlers.GetUser)
 	account.Put("", handlers.UpdateUser)
 	account.Delete("/users", handlers.DeleteUser)
+	
 }
 
 func SetupSwagger(app *fiber.App) {

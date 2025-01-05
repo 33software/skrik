@@ -361,11 +361,11 @@ func wsHandler(c *websocket.Conn) {
 			c.Close()
 			break
 		}
-		go msgHandler(msg, userid)
+		go msgHandler(msg)
 	}
 }
 
-func msgHandler(msg []byte, userid int) {
+func msgHandler(msg []byte) {
 	temp := strings.SplitN(string(msg), ":", 2)
 	if len(temp) < 2 {
 		return
@@ -391,5 +391,4 @@ func msgHandler(msg []byte, userid int) {
 			connManager.mu.Unlock()
 		}
 	}
-	return
 }
