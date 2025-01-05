@@ -339,16 +339,15 @@ func Test(app *fiber.App) {
 }
 
 func wsHandler(c *websocket.Conn) {
-	connManager.mu.Lock()
 	localsToken := c.Locals("user").(*jwt.Token)
 	claims := localsToken.Claims.(jwt.MapClaims)
 	useridFloat, ok := claims["userid"].(float64)
 	if !ok {
 		c.Close()
-		connManager.mu.Unlock()
 		return
 	}
 	userid := int(useridFloat)
+	connManager.mu.Lock()
 	connManager.userid[userid] = c
 	connManager.mu.Unlock()
 

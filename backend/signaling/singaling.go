@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/websocket/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
+
 type SignalMessage struct {
 	Type string          `json:"type"`
 	From json.Number     `json:"from"`
@@ -19,7 +20,7 @@ type SignalMessage struct {
 
 type wrap struct {
 	conn *websocket.Conn
-	mu sync.Mutex
+	mu   sync.Mutex
 }
 
 type connections struct {
@@ -41,12 +42,11 @@ func signalingWs(c *websocket.Conn) {
 	useridFloat, ok := claims["userid"].(float64)
 	if !ok {
 		c.Close()
-		connManager.mu.Unlock()
 		return
 	}
 	userid := int(useridFloat)
 	connManager.mu.Lock()
-	connManager.userid[userid] = &wrap{conn: c,}
+	connManager.userid[userid] = &wrap{conn: c}
 	connManager.mu.Unlock()
 
 	for {
@@ -71,7 +71,7 @@ func msgHandler(msg []byte) {
 	}
 	toInt, err := message.To.Int64()
 	if err != nil {
-		log.Printf("couldn't convert field TO to int", err)
+		log.Println("couldn't convert field TO to int", err)
 		return
 	}
 	connManager.mu.Lock()
