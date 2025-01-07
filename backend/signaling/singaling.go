@@ -20,8 +20,8 @@ type SignalMessage struct {
 }
 
 type wrap struct {
-	conn *websocket.Conn
-	mu   sync.Mutex
+	conn  *websocket.Conn
+	mu    sync.Mutex
 	msgCh chan []byte
 }
 
@@ -49,7 +49,7 @@ func signalingWs(c *websocket.Conn) {
 	userid := int(useridFloat)
 	connManager.mu.Lock()
 	connManager.userid[userid] = &wrap{
-		conn: c,
+		conn:  c,
 		msgCh: make(chan []byte, 50),
 	}
 	msgCh := connManager.userid[userid].msgCh
@@ -72,41 +72,38 @@ func signalingWs(c *websocket.Conn) {
 func msgHandler(msgCh chan []byte, userid int) {
 	var message SignalMessage
 	for msg := range msgCh {
-	if err := json.Unmarshal(msg, &message); err != nil {
-		log.Println("error! ", err)
-		return
-	}
-	//log.Println(message)
-	//logging shit 
-	log.Println(message.To)
-	if message.To == "" {
-		continue
-	}
-	//end of logging shit
-	toInt, err := message.To.Int64()
-	if err != nil {
-		log.Println("couldn't convert field TO to int", err)
-		continue
-	}
-	if message.From == "" {
-		message.From = json.Number(strconv.Itoa(userid))
-	}
-	connManager.mu.Lock()
-	recConnection, exists := connManager.userid[int(toInt)]
-	connManager.mu.Unlock()
-	if !exists {
-		log.Printf("couldn't find conn")
-		return
-	}
-	recConnection.mu.Lock()
-	if err := recConnection.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
-		log.Println("failed to send message")
+		if err := json.Unmarshal(msg, &message); err != nil {
+			log.Println("error! ", err)
+			return
+		}
+		//	log.Println(message.To) it sometimes skips ice i think, idk =)
+		if message.To == "" {
+			continue
+		}
+		toInt, err := message.To.Int64()
+		if err != nil {
+			log.Println("couldn't convert field TO to int", err)
+			continue
+		}
+		if message.From == "" {
+			message.From = json.Number(strconv.Itoa(userid))
+		}
 		connManager.mu.Lock()
-		delete(connManager.userid, int(toInt))
+		recConnection, exists := connManager.userid[int(toInt)]
 		connManager.mu.Unlock()
-		recConnection.conn.Close()
-		close(recConnection.msgCh)
+		if !exists {
+			log.Printf("couldn't find conn")
+			return
+		}
+		recConnection.mu.Lock()
+		if err := recConnection.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+			log.Println("failed to send message")
+			connManager.mu.Lock()
+			delete(connManager.userid, int(toInt))
+			connManager.mu.Unlock()
+			recConnection.conn.Close()
+			close(recConnection.msgCh)
+		}
+		recConnection.mu.Unlock()
 	}
-	recConnection.mu.Unlock()
-}
 }
