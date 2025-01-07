@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	jwtGen "skrik/JWT"
+	"strconv"
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,6 +22,7 @@ type SignalMessage struct {
 type wrap struct {
 	conn *websocket.Conn
 	mu   sync.Mutex
+	msgCh chan []byte
 }
 
 type connections struct {
@@ -46,8 +48,13 @@ func signalingWs(c *websocket.Conn) {
 	}
 	userid := int(useridFloat)
 	connManager.mu.Lock()
-	connManager.userid[userid] = &wrap{conn: c}
+	connManager.userid[userid] = &wrap{
+		conn: c,
+		msgCh: make(chan []byte, 50),
+	}
+	msgCh := connManager.userid[userid].msgCh
 	connManager.mu.Unlock()
+	go msgHandler(msgCh, userid)
 
 	for {
 		_, msg, err := c.ReadMessage()
@@ -58,21 +65,31 @@ func signalingWs(c *websocket.Conn) {
 			c.Close()
 			break
 		}
-		go msgHandler(msg)
+		msgCh <- msg
 	}
 }
 
-func msgHandler(msg []byte) {
+func msgHandler(msgCh chan []byte, userid int) {
 	var message SignalMessage
-
+	for msg := range msgCh {
 	if err := json.Unmarshal(msg, &message); err != nil {
 		log.Println("error! ", err)
 		return
 	}
+	//log.Println(message)
+	//logging shit 
+	log.Println(message.To)
+	if message.To == "" {
+		continue
+	}
+	//end of logging shit
 	toInt, err := message.To.Int64()
 	if err != nil {
 		log.Println("couldn't convert field TO to int", err)
-		return
+		continue
+	}
+	if message.From == "" {
+		message.From = json.Number(strconv.Itoa(userid))
 	}
 	connManager.mu.Lock()
 	recConnection, exists := connManager.userid[int(toInt)]
@@ -88,6 +105,8 @@ func msgHandler(msg []byte) {
 		delete(connManager.userid, int(toInt))
 		connManager.mu.Unlock()
 		recConnection.conn.Close()
+		close(recConnection.msgCh)
 	}
 	recConnection.mu.Unlock()
+}
 }
