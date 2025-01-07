@@ -1,4 +1,5 @@
 # skrik
+write your own webrtc client first =)
 Temporary name of our web rtc thing that should be alternative for discrod in russia
 
 # How to start
