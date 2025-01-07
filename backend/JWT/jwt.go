@@ -45,7 +45,7 @@ func JwtProtected() fiber.Handler {
 	return jwtware.New(jwtware.Config{
 		SigningKey:  []byte(EnvConfig.Jwt_keyword),
 		AuthScheme:  "Bearer",
-		TokenLookup: "header:Authorization",
+		TokenLookup: "header:Authorization, query:token",
 	})
 
 }

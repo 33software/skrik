@@ -4,7 +4,7 @@ import (
 	"skrik/handlers"
 
 	jwtGen "skrik/JWT"
-	//_ "skrik/docs"
+	_ "skrik/docs"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
@@ -27,6 +27,7 @@ func SetupUserRoutes(app *fiber.App) {
 	account.Get("", handlers.GetUser)
 	account.Put("", handlers.UpdateUser)
 	account.Delete("/users", handlers.DeleteUser)
+	
 }
 
 func SetupSwagger(app *fiber.App) {

@@ -8,6 +8,8 @@ import (
 	"skrik/database"
 	"skrik/models"
 	smtpModule "skrik/smtp"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
@@ -337,11 +339,15 @@ func Test(app *fiber.App) {
 }
 
 func wsHandler(c *websocket.Conn) {
-	connManager.mu.Lock()
-	userid, ok := c.Locals("userid").(int)
+	localsToken := c.Locals("user").(*jwt.Token)
+	claims := localsToken.Claims.(jwt.MapClaims)
+	useridFloat, ok := claims["userid"].(float64)
 	if !ok {
 		c.Close()
+		return
 	}
+	userid := int(useridFloat)
+	connManager.mu.Lock()
 	connManager.userid[userid] = c
 	connManager.mu.Unlock()
 
@@ -354,13 +360,34 @@ func wsHandler(c *websocket.Conn) {
 			c.Close()
 			break
 		}
-		go msgHandler(msg, userid)
+		go msgHandler(msg)
 	}
 }
 
-func msgHandler(msg []byte, userid int) {
-	for userID := range connManager.userid {
-		reciever := connManager.userid[userID]
-		reciever.WriteMessage(websocket.TextMessage, msg)
+func msgHandler(msg []byte) {
+	temp := strings.SplitN(string(msg), ":", 2)
+	if len(temp) < 2 {
+		return
+	}
+	recieverids := strings.Split(temp[0], ",")
+	for _, ids := range recieverids {
+		recieverid, err := strconv.Atoi(ids)
+		if err != nil {
+			continue
+		}
+
+		connManager.mu.Lock()
+		recConnection, exists := connManager.userid[recieverid]
+		connManager.mu.Unlock()
+		if !exists {
+			continue
+		}
+
+		if err := recConnection.WriteMessage(websocket.TextMessage, []byte(temp[1])); err != nil {
+			connManager.mu.Lock()
+			delete(connManager.userid, recieverid)
+			recConnection.Close()
+			connManager.mu.Unlock()
+		}
 	}
 }
