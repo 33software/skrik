@@ -25,8 +25,9 @@ jobs:
 
       # Шаг 3: Установка зависимостей
       - name: Install dependencies
-        run: cd /backend
-        go mod download
+        run: |
+    cd server
+    go mod download
 
       # Шаг 4: Запуск тестов
       - name: Run tests
