@@ -5,7 +5,7 @@ import (
 	"skrik/config"
 	"skrik/database"
 	_ "skrik/docs"
-	"skrik/handlers"
+	"skrik/messaging"
 	"skrik/routes"
 	"skrik/signaling"
 
@@ -22,7 +22,7 @@ func main() {
 		AllowMethods: "GET,POST,HEAD,PUT,DELETE,OPTIONS",
 		AllowHeaders: "Content-Type, Authorization",
 	}))
-	handlers.Test(app)
+	messaging.Test(app)
 	signaling.VoiceHandler(app)
 	routes.SetupUserRoutes(app)
 	routes.SetupSwagger(app)

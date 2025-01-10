@@ -8,12 +8,7 @@ import (
 	"skrik/database"
 	"skrik/models"
 	smtpModule "skrik/smtp"
-	"strconv"
-	"strings"
-	"sync"
-
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/websocket/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -323,71 +318,4 @@ func ResetEndpoint(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{Message: "couldn't update password"}) //nolint:errcheck
 	}
 	return c.Status(fiber.StatusOK).JSON(&user) //nolint:errcheck it sends user back cuz i wanted (and might want in future) to see if it changes password and nothing else. zxcursed
-}
-
-type connections struct {
-	userid map[int]*websocket.Conn
-	mu     sync.Mutex
-}
-
-var connManager = connections{
-	userid: make(map[int]*websocket.Conn),
-}
-
-func Test(app *fiber.App) {
-	app.Get("api/ws", jwtGen.JwtProtected(), websocket.New(wsHandler))
-}
-
-func wsHandler(c *websocket.Conn) {
-	localsToken := c.Locals("user").(*jwt.Token)
-	claims := localsToken.Claims.(jwt.MapClaims)
-	useridFloat, ok := claims["userid"].(float64)
-	if !ok {
-		c.Close()
-		return
-	}
-	userid := int(useridFloat)
-	connManager.mu.Lock()
-	connManager.userid[userid] = c
-	connManager.mu.Unlock()
-
-	for {
-		_, msg, err := c.ReadMessage()
-		if err != nil {
-			connManager.mu.Lock()
-			delete(connManager.userid, userid)
-			connManager.mu.Unlock()
-			c.Close()
-			break
-		}
-		go msgHandler(msg)
-	}
-}
-
-func msgHandler(msg []byte) {
-	temp := strings.SplitN(string(msg), ":", 2)
-	if len(temp) < 2 {
-		return
-	}
-	recieverids := strings.Split(temp[0], ",")
-	for _, ids := range recieverids {
-		recieverid, err := strconv.Atoi(ids)
-		if err != nil {
-			continue
-		}
-
-		connManager.mu.Lock()
-		recConnection, exists := connManager.userid[recieverid]
-		connManager.mu.Unlock()
-		if !exists {
-			continue
-		}
-
-		if err := recConnection.WriteMessage(websocket.TextMessage, []byte(temp[1])); err != nil {
-			connManager.mu.Lock()
-			delete(connManager.userid, recieverid)
-			recConnection.Close()
-			connManager.mu.Unlock()
-		}
-	}
 }
