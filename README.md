@@ -1,4 +1,8 @@
 # skrik
+
+being refactoted-reworked-rethinked. in short - skrik:re
+
+
 Temporary name of our web rtc thing that should be alternative for discrod in russia
 
 # How to start
