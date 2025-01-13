@@ -2,8 +2,8 @@ package usecases
 
 import (
 	"log"
-	entities "skrik/internal/entities/user"
-	repository "skrik/internal/repository/user"
+	entities "skrik/internal/entities"
+	repository "skrik/internal/repository"
 
 	"golang.org/x/crypto/bcrypt"
 )

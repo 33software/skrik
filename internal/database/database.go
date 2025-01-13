@@ -3,7 +3,7 @@ package database
 import (
 	"log"
 	"skrik/internal/config"
-	entities "skrik/internal/entities/user"
+	entities "skrik/internal/entities"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
