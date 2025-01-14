@@ -18,8 +18,18 @@ func Middleware() fiber.Handler {
 			log.Println("invalid token!")
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid token"})
 		}
+
+
 		claims := token.Claims.(jwt.MapClaims)
-		c.Locals("userid", claims["userid"])
+		useridfloat, ok := claims["userid"].(float64)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+                "error": "invalid userid in token",
+            })
+        }
+		c.Locals("userid", int(useridfloat))
+
+		
 		return c.Next()
 	}
 }

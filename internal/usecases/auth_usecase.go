@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"skrik/internal/auth"
+	"skrik/internal/entities"
 	repository "skrik/internal/repository"
 
 	"golang.org/x/crypto/bcrypt"
@@ -29,12 +30,31 @@ func (au *AuthUsecase) Authorize(username string, password string) (string, erro
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			log.Println("wrong password!")
-
+			return "", err
 		}
 		return "", err
 	}
 	token, err := auth.GenerateAccessToken(user.ID)
 	if err != nil {
+		return "", err
+	}
+	return token, nil
+}
+func (au *AuthUsecase) Register (user *entities.User) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	if err != nil {
+		log.Println("couldn't hash password. err: ", err)
+		return "", err
+	}
+	user.Password = string(hashedPassword)
+	err = au.repo.CreateUser(user)
+	if err != nil {
+		log.Println("couldn't create user. err: ", err)
+		return "", err
+	}
+	token, err := auth.GenerateAccessToken(user.ID)
+	if err != nil {
+		log.Println("couldn't generate access token. err: ", err)
 		return "", err
 	}
 	return token, nil
