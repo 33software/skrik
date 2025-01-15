@@ -19,10 +19,13 @@ func Run() {
 		log.Fatalln("couldn't start database. err: ", err)
 	}
 	app := fiber.New()
+	app.Use("/", controllers.ErrHandlerMiddleware)
 
 	userRepo := repository.NewUserRepository(db)
 	userUsecase := usecases.NewUserUsecase(userRepo)
 	controllers.NewUserController(userUsecase, app)
 	authUsecase := usecases.NewAuthUsecase(userRepo)
 	controllers.NewAuthController(authUsecase, app)
+
+	app.Listen(config.AppConfig.App_ip + ":" + config.AppConfig.App_port)
 }

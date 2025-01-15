@@ -7,8 +7,10 @@ import (
 	"skrik/internal/entities"
 	repository "skrik/internal/repository"
 
+	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
+
 type AuthUsecase struct {
 	repo *repository.UserRepository
 }
@@ -40,13 +42,17 @@ func (au *AuthUsecase) Authorize(username string, password string) (string, erro
 	}
 	return token, nil
 }
-func (au *AuthUsecase) Register (user *entities.User) (string, error) {
+func (au *AuthUsecase) Register(user *entities.User) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		log.Println("couldn't hash password. err: ", err)
 		return "", err
 	}
 	user.Password = string(hashedPassword)
+	/*user.Refresh_token, err = auth.GenerateRefreshToken(user.ID) //here's the refresh token generation functionality, but i can't properly test it so...
+	if err != nil {
+		return "", err
+	}*/
 	err = au.repo.CreateUser(user)
 	if err != nil {
 		log.Println("couldn't create user. err: ", err)
@@ -58,4 +64,22 @@ func (au *AuthUsecase) Register (user *entities.User) (string, error) {
 		return "", err
 	}
 	return token, nil
+}
+
+func (au *AuthUsecase) CompareRefreshTokens(requestToken string) (string, error) {
+	token, err := auth.ParseToken(requestToken)
+	if err != nil || !token.Valid {
+		return "", errors.New("invalid token")
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userid := uint(claims["userid"].(float64))
+	user, err := au.repo.FindUserById(userid)
+	if err != nil {
+		return "", err
+	}
+	if user.Refresh_token != requestToken {
+		return "", errors.New("refresh tokens doesn't match")
+	}
+
+	return auth.GenerateAccessToken(user.ID)
 }

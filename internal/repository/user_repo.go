@@ -44,10 +44,10 @@ func (ur *UserRepository) FindUserByUsername(username string) (*entities.User, e
 			log.Println("no such user!")
 			return nil, err
 		}
-	log.Println("error! err: ", err)
-	return nil, err
+		log.Println("error! err: ", err)
+		return nil, err
 	}
-	
+
 	return &user, nil
 }
 
