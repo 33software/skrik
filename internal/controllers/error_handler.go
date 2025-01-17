@@ -13,7 +13,7 @@ func ErrHandlerMiddleware(c *fiber.Ctx) error {
 		if appErr, ok := err.(*entities.AppErr); ok {
 			return c.Status(appErr.Code).JSON(appErr.Message)
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "internal server error"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err})
 	}
 	return nil
 }

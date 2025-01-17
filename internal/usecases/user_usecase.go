@@ -1,9 +1,6 @@
 package usecases
 
 import (
-	"errors"
-	"log"
-
 	//entities "skrik/internal/entities"
 	"skrik/internal/entities"
 	repository "skrik/internal/repository"
@@ -21,14 +18,13 @@ func NewUserUsecase(repo *repository.UserRepository) *UserUsecase {
 func (uuc *UserUsecase) DeleteUser(id uint) error {
 	err := uuc.repo.DeleteUser(id)
 	if err != nil {
-		log.Println("error! err: ", err)
 		return err
 	}
 	return nil
 }
 func (uuc *UserUsecase) GetUserByID(userid uint) (*entities.User, error) {
 	if userid == 0 {
-		return nil, errors.New("invalid userid")
+		return nil, entities.NewBadRequestError("empty or corrupted data. debug: empty userid")
 	}
 	return uuc.repo.FindUserById(userid)
 }

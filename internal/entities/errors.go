@@ -21,3 +21,9 @@ func NewNotFoundError (message string) *AppErr{
 func NewInternalServerError (message string) *AppErr {
     return NewAppErr(500, message)
 }
+func NewBadRequestError (message string) *AppErr{
+    return NewAppErr(400, message)
+}
+func NewUnauthorizedError (message string) *AppErr{
+    return NewAppErr(401, message)
+}

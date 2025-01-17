@@ -1,10 +1,8 @@
 package controllers
 
 import (
-	"log"
 	"skrik/internal/entities"
 	usecases "skrik/internal/usecases"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -21,7 +19,7 @@ func NewAuthController(authUsecase *usecases.AuthUsecase, app *fiber.App) {
 func (ac *AuthController) Login(c *fiber.Ctx) error {
 	var user entities.User
 	if err := c.BodyParser(&user); err != nil {
-		return err
+		return entities.NewBadRequestError("failed to read request body")
 	}
 	token, err := ac.usecase.Authorize(user.Username, user.Password)
 	if err != nil {
@@ -32,14 +30,12 @@ func (ac *AuthController) Login(c *fiber.Ctx) error {
 }
 func (ac *AuthController) Register(c *fiber.Ctx) error {
 	var user entities.User
-
 	if err := c.BodyParser(&user); err != nil {
-		log.Println("failed to parse request. err: ", err)
 		return err
 	}
 	token, err := ac.usecase.Register(&user)
 	if err != nil {
-		log.Println("error! err: ", err)
+		return err
 	}
 
 	return c.Status(fiber.StatusOK).SendString(token)

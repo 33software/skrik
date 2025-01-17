@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"log"
 	entities "skrik/internal/entities"
 
 	"gorm.io/gorm"
@@ -24,10 +23,8 @@ func (ur *UserRepository) FindUserById(id uint) (*entities.User, error) {
 	var user *entities.User
 	if err := ur.db.First(&user, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Println("user not found")
-			return nil, err
+			return nil, entities.NewNotFoundError("user not found. debug: ")
 		}
-		log.Println("database error! err: ", err)
 		return nil, err
 	}
 	return user, nil
@@ -35,16 +32,14 @@ func (ur *UserRepository) FindUserById(id uint) (*entities.User, error) {
 func (ur *UserRepository) FindUserByUsername(username string) (*entities.User, error) {
 	var user entities.User
 	if username == "" {
-		log.Println("invalid username")
-		return nil, nil //make custom errors!!!
+		return nil, entities.NewBadRequestError("empty or corrupted data. debug: ")
 	}
 	err := ur.db.Where("Username = ?", username).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Println("no such user!")
-			return nil, err
+
+			return nil, entities.NewNotFoundError("user not found. debug: ")
 		}
-		log.Println("error! err: ", err)
 		return nil, err
 	}
 
@@ -60,10 +55,8 @@ func (ur *UserRepository) FindUserByUsername(username string) (*entities.User, e
 
 func (ur *UserRepository) DeleteUser(id uint) error {
 	var user *entities.User
-	if id == 0 {
-		log.Println("wrong id")
-		return nil //add custom errors or smth
+	if err := ur.db.Delete(&user, id).Error; err != nil {
+		return err
 	}
-	ur.db.Delete(&user, id)
 	return nil
 }

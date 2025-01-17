@@ -1,13 +1,12 @@
 package entities
 
 import (
-    "gorm.io/gorm"
-
+	"gorm.io/gorm"
 )
-type User struct {
-    gorm.Model
-    Username string
-    Password string
-    Refresh_token string
 
+type User struct {
+	gorm.Model
+	Username      string `gorm:"unique" json:"username"`
+	Password      string `json:"password"`
+	Refresh_token string `json:"refresh_token"`
 }

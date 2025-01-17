@@ -7,8 +7,9 @@ import (
 	"skrik/internal/database"
 	repository "skrik/internal/repository"
 	"skrik/internal/usecases"
-
+	_"skrik/docs"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 )
 
 func Run() {
@@ -20,6 +21,7 @@ func Run() {
 	}
 	app := fiber.New()
 	app.Use("/", controllers.ErrHandlerMiddleware)
+	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	userRepo := repository.NewUserRepository(db)
 	userUsecase := usecases.NewUserUsecase(userRepo)

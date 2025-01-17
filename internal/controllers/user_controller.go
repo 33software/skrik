@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"errors"
-	"log"
 	"skrik/internal/auth"
 	entities "skrik/internal/entities"
 	usecases "skrik/internal/usecases"
@@ -27,12 +25,10 @@ func NewUserController(usecase *usecases.UserUsecase, app *fiber.App) {
 func (uc *UserController) DeleteUser(c *fiber.Ctx) error {
 	var user entities.User
 	if err := c.BodyParser(&user); err != nil {
-		log.Println("couldn't parse body! err: ", err)
-		return err
+		return entities.NewBadRequestError("failed to read request body")
 	}
 	if user.ID <= 0 {
-		log.Println("incorrect id!")
-		return errors.New("incorrect id")
+		return entities.NewBadRequestError("incorrect userid. debug: ")
 	}
 	uc.usecase.DeleteUser(user.ID)
 	return c.SendStatus(fiber.StatusOK)
@@ -41,7 +37,7 @@ func (uc *UserController) GetProfile(c *fiber.Ctx) error {
 	userid := c.Locals("userid").(int)
 	user, err := uc.usecase.GetUserByID(uint(userid))
 	if err != nil {
-		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error: ": err})
+		return err
 	}
 
 	return c.JSON(user)
