@@ -23,7 +23,7 @@ func (ur *UserRepository) FindUserById(id uint) (*entities.User, error) {
 	var user *entities.User
 	if err := ur.db.First(&user, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, entities.NewNotFoundError("user not found. debug: ")
+			return nil, err
 		}
 		return nil, err
 	}
