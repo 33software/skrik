@@ -11,7 +11,10 @@ func Middleware() fiber.Handler {
 	return func(c *fiber.Ctx) error{
 		tokenString := c.Get("Authorization")
 		if tokenString == "" {
-			return entities.NewBadRequestError("couldn't verify token. debug: empty token")
+			tokenString = c.Query("token")
+			if tokenString == "" {
+				return entities.NewBadRequestError("epmty token")
+			}
 		}
 		token ,err := ParseToken(tokenString)
 		if err != nil || !token.Valid {
@@ -25,7 +28,6 @@ func Middleware() fiber.Handler {
 			return entities.NewInternalServerError("internal server error. debug: failed type assertion")
         }
 		c.Locals("userid", int(useridfloat))
-
 		
 		return c.Next()
 	}

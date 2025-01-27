@@ -2,12 +2,13 @@ package app
 
 import (
 	"log"
+	_ "skrik/docs"
 	"skrik/internal/config"
 	controllers "skrik/internal/controllers"
 	"skrik/internal/database"
 	repository "skrik/internal/repository"
 	"skrik/internal/usecases"
-	_"skrik/docs"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
 )
@@ -23,6 +24,9 @@ func Run() {
 	app.Use("/", controllers.ErrHandlerMiddleware)
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
+	chatRepo := repository.NewChatRepository(db)
+	chatUsecase := usecases.NewChatUsecase(chatRepo)
+	controllers.NewChatController(chatUsecase, app)
 	userRepo := repository.NewUserRepository(db)
 	userUsecase := usecases.NewUserUsecase(userRepo)
 	controllers.NewUserController(userUsecase, app)

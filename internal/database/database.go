@@ -21,7 +21,7 @@ func StartDb() (*gorm.DB, error) {
 	if err != nil {
 		log.Fatalln("couldn't connect to the database. err: ", err)
 	}
-	err = db.AutoMigrate(entities.User{})
+	err = db.AutoMigrate(entities.User{}, entities.Message{}, entities.Room{})
 	if err != nil {
 		log.Fatalln("couldn't migrate model(s). err: ", err)
 	}
