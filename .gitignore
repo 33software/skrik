@@ -1,4 +1,4 @@
+.DS_Store
 tmp/
 docs/
-docs/swagger.json
-docs/swagger.yaml
+.env
