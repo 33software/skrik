@@ -79,7 +79,7 @@ Skrik is a platform for group chats, made for educational purposes and built wit
 
 - [ ] Implement refresh tokens for JWT authentication.
 
-- [ ] Implement signaling server for voice calling.
+
 
 ## API Routes
 
